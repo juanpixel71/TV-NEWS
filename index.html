@@ -3,132 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Mi Total Player</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
+  <title>TV-NEWS</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
-  <div class="app-container">
-    
-    <div id="screen-home" class="screen active">
-      <div class="header">MI TOTAL PLAYER</div>
-      <div class="view-content" style="justify-content: space-between;">
-        <button class="btn-main-home" onclick="navigateTo('screen-tv')"><span>📺</span> TV-NEWS</button>
-        <button class="btn-main-home" onclick="ejecutarAccionMusica()"><span>🎵</span> MÚSICA</button>
-        <input type="file" id="folder-input" webkitdirectory directory multiple onchange="window.cargarBibliotecaLocal(event)" style="display:none;">
-        <button class="btn-main-home" onclick="navigateTo('screen-radio')"><span>📻</span> RADIO</button>
-        <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
-      </div>
-    </div>
-
-    <div id="screen-tv" class="screen">
-      <div class="header">TV-NEWS</div>
-      <div class="view-content">
-        <div class="tv-container">
-          <div class="tv-video-box">
-            <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
-          </div>
-          <div class="tv-controls-box">
-            <div class="grid-buttons">
-              <button class="boton-canal" onclick="loadChannel('https://live.france24.com/hls/live/2037179-b/F24_FR_HI_HLS/master_5000.m3u8', this)">FRANCE 24</button>
-              <button class="boton-canal" onclick="loadChannel('https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TV/index.m3u8', this)">BFM</button>
-              <button class="boton-canal" onclick="loadChannel('https://dash2.antik.sk/live/test_bbc_world/playlist.m3u8', this)">BBC NEWS</button>
-              <button class="boton-canal" onclick="loadChannel('https://ds2c506obo7m8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-7zjq3tdqasbg8/index.m3u8', this)">CNN</button>
-              <button class="boton-canal" onclick="loadChannel('https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA4YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8', this)">EURONEWS</button>
-              <button class="boton-canal" onclick="loadChannel('https://ztnr.rtve.es/ztnr/1694255.m3u8', this)">24 HORAS</button>
-              <button class="boton-canal" onclick="loadChannel('https://rtvelivestream.rtve.es/rtvesec/la1/la1_main_dvr.m3u8', this)">TVE LA 1</button>
-              <button class="boton-canal" onclick="loadChannel('https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8', this)">3CAT INFO</button>
-            </div>
-            </div>
-        </div>
-        <button class="btn-nav-back" onclick="navigateTo('screen-home')">&lt; VOLVER HOME</button>
-      </div>
-    </div>
-
-    <div id="screen-albums" class="screen">
-      <div class="header">ÁLBUMES</div>
-      <div class="view-content">
-        <div id="albums-container" class="albums-grid"></div>
-        <button class="btn-nav-back" onclick="navigateTo('screen-home')">&lt; VOLVER HOME</button>
-      </div>
-    </div>
-
-    <div id="screen-songs" class="screen">
-      <div id="album-header" class="header">ÁLBUM</div>
-      <div class="view-content">
-        <div id="songs-container" class="song-list"></div>
-        <button class="btn-nav-back" onclick="navigateTo('screen-albums')">&lt; VOLVER ÁLBUMES</button>
-      </div>
-    </div>
-
-    <div id="screen-player" class="screen">
-      <div class="header">REPRODUCIENDO</div>
-      <div class="view-content">
-        <div class="player-view-drive">
-          <div class="album-cover-drive" id="player-cover">
-            <span id="player-cover-icon" style="font-size: 5rem; color: #FFF;">🎵</span>
-          </div>
-          <div class="track-details-drive">
-            <h3 id="player-song-title">Canción</h3>
-            <p id="player-album-info">Álbum</p>
-          </div>
-          <div class="progress-bar-container">
-            <span id="current-time" class="time-stamp">0:00</span>
-            <input type="range" id="seek-bar" class="progress-bar" value="0" min="0" step="1">
-            <span id="total-time" class="time-stamp" style="text-align: right;">0:00</span>
-          </div>
-          <div class="media-controls-square">
-            <button class="btn-square" onclick="prevSong()">⏮</button>
-            <button class="btn-square btn-square-main" id="btn-play-pause" onclick="togglePlayMusic()">▶</button>
-            <button class="btn-square" onclick="nextSong()">⏭</button>
-          </div>
-          <audio id="audio-element"></audio>
-        </div>
-        <button class="btn-nav-back" onclick="pararYVolverCanciones()">&lt; VOLVER A CANCIONES</button>
-      </div>
-    </div>
-
-<!-- PANTALLA DE RADIO -->
-<div id="screen-radio" class="screen">
-  <div class="header">RADIO</div>
-    <div class="view-content">
-        <!-- Caja Ampliada del Reproductor Negro -->
-    <div class="radio-display-box">
-      <!-- Fila de barra de progreso y tiempos -->
-      <div class="radio-status-row">
-        <span id="radio-current-time" class="time-stamp">0:00</span>
-        <div class="radio-progress-line"></div>
-        <span style="color: #FF8C00; font-weight: bold; margin-left: 10px;">LIVE</span>
-      </div>
-            <!-- Fila de Botones de Control Integrados -->
-      <div class="radio-player-controls">
-        <button id="btn-radio-pause">PAUSA</button>
-        <button id="btn-radio-stop">STOP</button>
-        <button id="btn-radio-live" class="active-live">LIVE</button>
-      </div>
-    </div>
-          <div class="grid-buttons" id="radio-buttons-container">
-          <button onclick="playRadio(this, 'https://stream.radiofrance.fr/franceinfo/franceinfo_hifi.m3u8')" class="boton-canal">FRANCE INFO</button>
-          <button onclick="playRadio(this, 'https://stream.radiofrance.fr/franceinter/franceinter.m3u8')" class="boton-canal">FRANCE INTER</button>
-          <button onclick="playRadio(this, 'https://icecast.radiofrance.fr/fipjazz-midfi.mp3')" class="boton-canal">JAZZ MUSIC</button>
-          <button onclick="playRadio(this, 'https://icecast.radiofrance.fr/fiprock-midfi.mp3')" class="boton-canal">ROCK MUSIC</button>
-          <button onclick="playRadio(this, 'https://icecast.radiofrance.fr/fippop-midfi.mp3')" class="boton-canal">POP MUSIC</button>
-          <button onclick="playRadio(this, 'https://icecast.radiofrance.fr/fipmetal-midfi.mp3')" class="boton-canal">METAL MUSIC</button>
-          <button onclick="playRadio(this, 'https://stream.rfm.fr/rfm-wr8.mp3')" class="boton-canal">HITS MUSIC</button>
-          <button onclick="playRadio(this, 'https://rfm.lmn.fm/rfm-wr10.mp3')" class="boton-canal">POP-ROCK</button>
-        </div>
-
-        <audio id="radio-audio-element"></audio>
-        <button class="btn-nav-back" onclick="navigateTo('screen-home')">&lt; VOLVER HOME</button>
-      </div>
-    </div>
-
+  <!-- REPRODUCTOR PRINCIPAL -->
+  <div id="player-container">
+    <video id="video" controls autoplay playsinline></video>
+    <iframe id="youtube-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display:none;"></iframe>
   </div>
 
-  <script src="bridge-music.js"></script>
+  <!-- BARRA INFERIOR DE BOTONES (TV Y NOTICIAS) -->
+  <div id="controls">
+    <button class="btn" onclick="openModal('modal-tv')">📺 TV</button>
+    <button class="btn" onclick="openModal('modal-news')">📰 NOTICIAS</button>
+  </div>
+
+  <!-- MODAL DE CANALES DE TV -->
+  <div id="modal-tv" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('modal-tv')">&times;</span>
+      <h2>Canales de TV</h2>
+      <div id="list-tv" class="grid-container">
+        <!-- Los canales de TV se cargan dinámicamente desde app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE NOTICIAS -->
+  <div id="modal-news" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('modal-news')">&times;</span>
+      <h2>Noticias</h2>
+      <div id="list-news" class="grid-container">
+        <!-- Las fuentes de noticias se cargan dinámicamente desde app.js -->
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

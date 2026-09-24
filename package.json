@@ -1,10 +1,10 @@
 {
-  "name": "TV-NEWS",
+  "name": "tv-news",
   "version": "1.0.0",
-  "description": "Reproductor de TV",
+  "description": "Reproductor de TV-NEWS",
   "main": "index.html",
   "scripts": {
-    "build": "mkdir -p www assets && cp icon.png assets/icon.png 2>/dev/null || true && cp index.html bridge-music.js icon.png www/ 2>/dev/null || true",
+    "build": "mkdir -p www && cp index.html icon.png www/ 2>/dev/null || true",
     "cap:sync": "cap sync"
   },
   "dependencies": {

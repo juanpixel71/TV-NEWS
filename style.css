@@ -1,0 +1,564 @@
+/* ==========================================
+   1. ESTILOS GLOBALES Y RESET
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  border: none !important;
+  outline: none !important;
+}
+
+html, body {
+  width: 100%;
+  height: 100dvh;
+  background-color: #3C3C3B;
+  color: #FFFFFF;
+  overflow: hidden;
+}
+
+.app-container {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #3C3C3B;
+}
+
+.header {
+  background-color: #FF8C00;
+  color: #FFFFFF;
+  padding: 16px;
+  padding-top: calc(20px + env(safe-area-inset-top, 20px));
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+
+/* ==========================================
+   2. NAVEGACIÓN Y PANTALLAS
+   ========================================== */
+.screen {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #3C3C3B;
+}
+
+.screen.active {
+  display: flex !important;
+}
+
+.view-content {
+  flex: 1;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.btn-nav-back {
+  background-color: #FF8C00;
+  color: #FFFFFF;
+  padding: 16px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border-radius: 10px;
+  margin-top: 0;
+  text-decoration: none;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.btn-nav-back:active {
+  opacity: 0.8;
+}
+
+/* ==========================================
+   3. PANTALLA PRINCIPAL (HOME)
+   ========================================== */
+.btn-main-home {
+  flex: 1;
+  background-color: #9D9D9C;
+  color: #FFFFFF;
+  border-radius: 12px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-transform: uppercase;
+}
+
+.btn-main-home span { 
+  font-size: 3.5rem; 
+}
+
+.btn-main-home:active { 
+  background-color: #FF8C00; 
+}
+
+/* ==========================================
+   4. PANTALLA DE TV Y REPRODUCTOR HLS
+   ========================================== */
+.tv-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.tv-controls-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.tv-video-box {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+  background-color: #000000 !important;
+  border-radius: 8px !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 10px !important;
+  position: relative !important;
+}
+
+#tv-video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background-color: #000000 !important;
+}
+
+#screen-tv .grid-buttons, 
+#radio-buttons-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.boton-canal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #9D9D9C;
+  color: #FFFFFF;
+  padding: 6px 4px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.boton-canal.active-item { 
+  background-color: #FF8C00 !important; 
+}
+
+#screen-tv .view-content,
+#screen-radio .view-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.radio-display {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+  background-color: #000000 !important;
+  border-radius: 8px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 10px !important;
+}
+
+#screen-tv .btn-nav-back,
+#screen-radio .btn-nav-back {
+  width: 100% !important;
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+
+/* ==========================================
+   5. MÚSICA (ÁLBUMES Y CANCIONES)
+   ========================================== */
+
+.albums-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.album-card-clean {
+  background-color: #9D9D9C;
+  color: #FFFFFF;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  line-height: 1.35;
+  white-space: pre-line;
+  word-break: break-word;
+  background-size: cover;
+  background-position: center;
+}
+
+
+
+.song-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  overflow-y: auto; 
+  flex: 1;
+  min-height: 0;
+}
+
+.song-list .song-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.song-item { 
+  background-color: #9D9D9C; 
+  color: #FFFFFF; 
+  padding: 14px; 
+  border-radius: 8px; 
+  font-size: 0.95rem; 
+  font-weight: bold; 
+  cursor: pointer; 
+}
+
+/* ==========================================
+   6. REPRODUCTOR DE MÚSICA (SCREEN-PLAYER)
+   ========================================== */
+
+.track-details-drive { 
+  text-align: center; 
+  width: 100%; 
+  margin-bottom: 10px;
+}
+
+.track-details-drive h3 { 
+  font-size: 1.3rem; 
+  font-weight: bold; 
+  color: #FFFFFF; 
+  margin-bottom: 4px; 
+}
+
+.track-details-drive p { 
+  font-size: 1rem; 
+  color: #9D9D9C; 
+}
+
+.progress-bar-container { 
+  width: 100%; 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  margin-bottom: 2px;
+}
+
+.time-stamp { 
+  font-size: 0.9rem; 
+  font-weight: bold; 
+  color: #FFFFFF; 
+  width: 40px; 
+}
+
+.progress-bar { 
+  flex: 1; 
+  -webkit-appearance: none; 
+  height: 6px; 
+  background: #555555; 
+  border-radius: 3px; 
+}
+
+.progress-bar::-webkit-slider-thumb { 
+  -webkit-appearance: none; 
+  appearance: none; 
+  width: 18px; 
+  height: 18px; 
+  border-radius: 50%; 
+  background: #FF8C00; 
+  cursor: pointer; 
+}
+
+.player-view-drive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 4px;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  padding: 5px 15px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.album-cover-drive {
+  width: 260px;
+  height: 260px;
+  background-color: #9D9D9C;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.media-controls-square { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 20px; 
+  width: 100%; 
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.btn-square { 
+  width: 95px; 
+  height: 95px; 
+  border-radius: 16px; 
+  background-color: #9D9D9C; 
+  color: #FFFFFF; 
+  font-size: 2.8rem; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  cursor: pointer; 
+}
+
+.btn-square.btn-square-main { 
+  width: 110px; 
+  height: 110px; 
+  background-color: #FF8C00 !important; 
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  font-size: 3.6rem; 
+}
+
+/* ==========================================
+   7. PANTALLA DE RADIO
+   ========================================== */
+#screen-radio .view-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.radio-display {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+  background-color: #000000 !important;
+  border-radius: 8px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 10px !important;
+}
+
+#radio-buttons-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+#radio-buttons-container .boton-canal {
+  height: 100% !important;
+  font-size: 1.1rem !important;
+}
+
+#screen-radio .btn-nav-back {
+  width: 100% !important;
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+
+
+/* ==========================================
+   ESTILOS ESPECÍFICOS PANTALLA RADIO
+   ========================================== */
+.radio-display-box {
+  width: 100% !important;
+  min-height: 110px !important; /* Le otorgamos una altura mínima fija más alta */
+  background-color: #000000 !important;
+  border-radius: 8px !important;
+  padding: 15px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Efectos visuales de click activo para los nuevos botones de radio */
+.radio-player-controls button:active {
+  opacity: 0.8;
+}
+
+
+.radio-status-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.radio-progress-line {
+  width: 100% !important;
+  height: 4px !important;
+  background-color: #FF8C00 !important;
+  border-radius: 2px !important;
+}
+
+#screen-radio .view-content {
+  justify-content: flex-start !important;
+  gap: 8px !important;
+}
+
+/* ==========================================
+   ESTILOS ESPECÍFICOS PANTALLA RADIO (CORREGIDO)
+   ========================================== */
+.radio-display-box {
+  width: 100% !important;
+  background-color: #000000 !important;
+  border-radius: 8px !important;
+  padding: 15px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin-bottom: 5px !important;
+}
+
+.radio-status-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.radio-progress-line {
+  flex: 1 !important;
+  height: 4px !important;
+  background-color: #FF8C00 !important;
+  border-radius: 2px !important;
+  margin: 0 10px !important;
+}
+
+/* Controles de botones dentro del cuadro negro */
+.radio-player-controls {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.radio-player-controls button {
+  background-color: #9D9D9C !important; /* Gris por defecto para todos */
+  color: #FFFFFF !important;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease;
+}
+
+.radio-player-controls button:active {
+  opacity: 0.8;
+}
+
+/* Esta clase pintará de naranja el botón que esté activo en cada momento */
+.radio-player-controls button.active-radio-control {
+  background-color: #FF8C00 !important;
+}
+
+

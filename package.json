@@ -1,0 +1,21 @@
+{
+  "name": "mi-total-player",
+  "version": "1.0.0",
+  "description": "Mi Total Player APK",
+  "main": "index.html",
+  "scripts": {
+    "build": "mkdir -p www assets && cp icon.png assets/icon.png 2>/dev/null || true && cp index.html bridge-music.js icon.png www/ 2>/dev/null || true",
+    "cap:sync": "cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.0",
+    "@capacitor/cli": "^6.0.0"
+  }
+}

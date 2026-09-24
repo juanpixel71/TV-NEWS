@@ -1,0 +1,6 @@
+{
+  "appId": "com.mimusica.player",
+  "appName": "Mi Total Player",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}

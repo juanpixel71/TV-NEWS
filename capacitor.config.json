@@ -1,5 +1,5 @@
 {
-  "appId": "com.mitotalplayer.tvnews",
+  "appId": "com.tvnews.app",
   "appName": "TV-NEWS",
-  "webDir": "."
+  "webDir": "www"
 }

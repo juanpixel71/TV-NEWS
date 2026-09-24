@@ -1,0 +1,251 @@
+name: Compilar APK Android
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configurar Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Instalar dependencias npm
+        run: npm install
+
+      - name: Preparar carpeta www y capacitor.config.json
+        run: |
+          mkdir -p www
+          cp -r *.html *.js *.css manifest.json icon.png www/ 2>/dev/null || true
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.mimusica.player",
+            "appName": "Mi Total Player",
+            "webDir": "www"
+          }
+          EOF
+
+      - name: Generar Plataforma Android limpia
+        run: npx cap add android
+
+      - name: Instalar ImageMagick para procesar iconos correctamente
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Inyectar y Redimensionar Icono Personalizado Correctamente
+        run: |
+          if [ -f "icon.png" ]; then
+            echo "Procesando e inyectando icono adaptativo con ImageMagick..."
+            
+            # Crear iconos estándar (legacy) con tamaños fijos exactos
+            convert icon.png -resize 48x48 android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+            convert icon.png -resize 72x72 android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+            convert icon.png -resize 96x96 android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+            convert icon.png -resize 144x144 android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+            convert icon.png -resize 192x192 android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+
+            # Crear iconos redondos
+            convert icon.png -resize 48x48 android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+            convert icon.png -resize 72x72 android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+            convert icon.png -resize 96x96 android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+            convert icon.png -resize 144x144 android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+            convert icon.png -resize 192x192 android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+
+            # IMPORTANTE: Para el primer plano adaptativo (Android 8+), agregamos un canvas con padding 
+            # para que el sistema operativo no recorte ni agrande de más la imagen del icono.
+            convert icon.png -resize 72x72 -background transparent -gravity center -extent 108x108 android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
+            convert icon.png -resize 108x108 -background transparent -gravity center -extent 162x162 android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
+            convert icon.png -resize 144x144 -background transparent -gravity center -extent 216x216 android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
+            convert icon.png -resize 216x216 -background transparent -gravity center -extent 324x324 android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
+            convert icon.png -resize 288x288 -background transparent -gravity center -extent 432x432 android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
+          fi
+
+      - name: Inyectar Permisos en AndroidManifest.xml
+        run: |
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />\n    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />' android/app/src/main/AndroidManifest.xml
+
+      - name: Inyectar MainActivity Nativa (Modo Inmersivo + Audio + Escáner COVERS)
+        run: |
+          mkdir -p android/app/src/main/java/com/mimusica/player
+          cat << 'EOF' > android/app/src/main/java/com/mimusica/player/MainActivity.java
+          package com.mimusica.player;
+
+          import android.os.Bundle;
+          import android.os.Environment;
+          import android.view.View;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import com.getcapacitor.BridgeActivity;
+          import org.json.JSONArray;
+          import org.json.JSONObject;
+          import java.io.File;
+          import java.io.FileInputStream;
+          import java.util.Base64;
+
+          public class MainActivity extends BridgeActivity {
+
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  
+                  WebView webView = this.bridge.getWebView();
+                  if (webView != null) {
+                      WebSettings settings = webView.getSettings();
+                      settings.setAllowFileAccess(true);
+                      settings.setAllowContentAccess(true);
+                      settings.setAllowFileAccessFromFileURLs(true);
+                      settings.setAllowUniversalAccessFromFileURLs(true);
+                  }
+
+                  this.bridge.getWebView().addJavascriptInterface(new WebAppInterface(), "AndroidBridge");
+              }
+
+              @Override
+              public void onWindowFocusChanged(boolean hasFocus) {
+                  super.onWindowFocusChanged(hasFocus);
+                  if (hasFocus) {
+                      getWindow().getDecorView().setSystemUiVisibility(
+                          View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                          | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                          | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                          | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                          | View.SYSTEM_UI_FLAG_FULLSCREEN
+                      );
+                  }
+              }
+
+              public class WebAppInterface {
+                  @JavascriptInterface
+                  public void cargarMusica() {
+                      runOnUiThread(new Runnable() {
+                          @Override
+                          public void run() {
+                              escanearCarpetaMiMusica();
+                          }
+                      });
+                  }
+              }
+
+              private void escanearCarpetaMiMusica() {
+                  JSONObject biblioteca = new JSONObject();
+                  JSONObject covers = new JSONObject();
+                  try {
+                      File miMusicaDir = new File(Environment.getExternalStorageDirectory(), "MiMusica");
+                      if (miMusicaDir.exists() && miMusicaDir.isDirectory()) {
+                          File[] rootFiles = miMusicaDir.listFiles();
+
+                          if (rootFiles != null) {
+                              
+                              // PASO 1: Buscar portadas en /MiMusica/COVERS
+                              File coversDir = new File(miMusicaDir, "COVERS");
+                              if (!coversDir.exists()) {
+                                  coversDir = new File(miMusicaDir, "covers");
+                              }
+
+                              if (coversDir.exists() && coversDir.isDirectory()) {
+                                  File[] coverFiles = coversDir.listFiles();
+                                  if (coverFiles != null) {
+                                      for (File coverFile : coverFiles) {
+                                          if (coverFile.isFile() && esImagen(coverFile.getName().toLowerCase())) {
+                                              String albumKey = coverFile.getName().replaceAll("\\.[^/.]+$", "").toLowerCase();
+                                              String b64 = convertirImagenABase64(coverFile);
+                                              if (b64 != null) {
+                                                  covers.put(albumKey, b64);
+                                              }
+                                          }
+                                      }
+                                  }
+                              }
+
+                              // PASO 2: Escanear Álbumes
+                              for (File albumDir : rootFiles) {
+                                  if (albumDir.isDirectory()) {
+                                      String albumName = albumDir.getName();
+
+                                      if (albumName.equalsIgnoreCase("covers")) {
+                                          continue;
+                                      }
+
+                                      JSONArray cancionesArray = new JSONArray();
+                                      File[] files = albumDir.listFiles();
+
+                                      if (files != null) {
+                                          for (File file : files) {
+                                              if (file.isFile() && esAudio(file.getName().toLowerCase())) {
+                                                  JSONObject cancion = new JSONObject();
+                                                  cancion.put("nombre", file.getName().replaceAll("\\.[^/.]+$", ""));
+                                                  cancion.put("archivo", "file://" + file.getAbsolutePath());
+                                                  cancionesArray.put(cancion);
+                                              }
+                                          }
+                                      }
+
+                                      if (cancionesArray.length() > 0) {
+                                          biblioteca.put(albumName, cancionesArray);
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  } catch (Exception e) {}
+
+                  WebView webView = this.bridge.getWebView();
+                  String jsCall = String.format("window.recibirBibliotecaNativa(%s, %s);", biblioteca.toString(), covers.toString());
+                  webView.evaluateJavascript(jsCall, null);
+              }
+
+              private boolean esAudio(String fileName) {
+                  return fileName.endsWith(".mp3") || fileName.endsWith(".wav") || fileName.endsWith(".m4a") || 
+                         fileName.endsWith(".aac") || fileName.endsWith(".ogg") || fileName.endsWith(".flac") || 
+                         fileName.endsWith(".opus") || fileName.endsWith(".wma");
+              }
+
+              private boolean esImagen(String fileName) {
+                  return fileName.endsWith(".jpg") || fileName.endsWith(".png") || fileName.endsWith(".jpeg") || fileName.endsWith(".webp");
+              }
+
+              private String convertirImagenABase64(File file) {
+                  try {
+                      FileInputStream fis = new FileInputStream(file);
+                      byte[] bytes = new byte[(int) file.length()];
+                      fis.read(bytes);
+                      fis.close();
+                      return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(bytes);
+                  } catch (Exception e) {
+                      return null;
+                  }
+              }
+          }
+          EOF
+
+      - name: Sincronizar archivos Web en Android
+        run: npx cap sync android
+
+      - name: Dar permisos de ejecución y compilar APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Subir ejecutable APK como Artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk

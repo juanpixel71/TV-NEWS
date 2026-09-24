@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Mi Total Player</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <style>
+    /* ==========================================
+       1. ESTILOS GLOBALES Y RESET
+       ========================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      border: none !important;
+      outline: none !important;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      background-color: #3C3C3B;
+      color: #FFFFFF;
+      overflow: hidden;
+    }
+
+    .app-container {
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background-color: #3C3C3B;
+    }
+
+    .header {
+      background-color: #FF8C00;
+      color: #FFFFFF;
+      padding: 16px;
+      padding-top: calc(20px + env(safe-area-inset-top, 20px));
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================
+       2. NAVEGACIÓN Y PANTALLAS
+       ========================================== */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #3C3C3B;
+    }
+
+    .screen.active {
+      display: flex !important;
+    }
+
+    .view-content {
+      flex: 1;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .btn-nav-back {
+      background-color: #FF8C00;
+      color: #FFFFFF;
+      padding: 16px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border-radius: 10px;
+      margin-top: 0;
+      text-decoration: none;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .btn-nav-back:active {
+      opacity: 0.8;
+    }
+
+    /* ==========================================
+       3. PANTALLA PRINCIPAL (HOME)
+       ========================================== */
+    .btn-main-home {
+      flex: 1;
+      background-color: #9D9D9C;
+      color: #FFFFFF;
+      border-radius: 12px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      text-transform: uppercase;
+    }
+
+    .btn-main-home span { 
+      font-size: 3.5rem; 
+    }
+
+    .btn-main-home:active { 
+      background-color: #FF8C00; 
+    }
+
+    /* ==========================================
+       4. PANTALLA DE TV Y REPRODUCTOR HLS
+       ========================================== */
+    .tv-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .tv-controls-box {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .tv-video-box {
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 16 / 9 !important;
+      background-color: #000000 !important;
+      border-radius: 8px !important;
+      flex-shrink: 0 !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-bottom: 10px !important;
+      position: relative !important;
+    }
+
+    #tv-video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+      background-color: #000000 !important;
+    }
+
+    #screen-tv .grid-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+    }
+
+    .boton-canal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #9D9D9C;
+      color: #FFFFFF;
+      padding: 6px 4px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      height: 100% !important;
+      width: 100% !important;
+    }
+
+    .boton-canal.active-item { 
+      background-color: #FF8C00 !important; 
+    }
+
+    #screen-tv .view-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      box-sizing: border-box;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    #screen-tv .btn-nav-back {
+      width: 100% !important;
+      margin-top: 0;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <div id="screen-home" class="screen active">
+      <div class="header">MI TOTAL PLAYER</div>
+      <div class="view-content" style="justify-content: space-between;">
+        <button class="btn-main-home" onclick="navigateTo('screen-tv')"><span>📺</span> TV-NEWS</button>
+        <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
+      </div>
+    </div>
+
+    <div id="screen-tv" class="screen">
+      <div class="header">TV-NEWS</div>
+      <div class="view-content">
+        <div class="tv-container">
+          <div class="tv-video-box">
+            <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+          </div>
+          <div class="tv-controls-box">
+            <div class="grid-buttons">
+              <button class="boton-canal" onclick="loadChannel('https://live.france24.com/hls/live/2037179-b/F24_FR_HI_HLS/master_5000.m3u8', this)">FRANCE 24</button>
+              <button class="boton-canal" onclick="loadChannel('https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TV/index.m3u8', this)">BFM</button>
+              <button class="boton-canal" onclick="loadChannel('https://dash2.antik.sk/live/test_bbc_world/playlist.m3u8', this)">BBC NEWS</button>
+              <button class="boton-canal" onclick="loadChannel('https://ds2c506obo7m8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-7zjq3tdqasbg8/index.m3u8', this)">CNN</button>
+              <button class="boton-canal" onclick="loadChannel('https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA4YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8', this)">EURONEWS</button>
+              <button class="boton-canal" onclick="loadChannel('https://ztnr.rtve.es/ztnr/1694255.m3u8', this)">24 HORAS</button>
+              <button class="boton-canal" onclick="loadChannel('https://rtvelivestream.rtve.es/rtvesec/la1/la1_main_dvr.m3u8', this)">TVE LA 1</button>
+              <button class="boton-canal" onclick="loadChannel('https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8', this)">3CAT INFO</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-nav-back" onclick="navigateTo('screen-home')">&lt; VOLVER HOME</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================
+       VARIABLES GLOBALES Y ELEMENTOS DOM
+       ========================================== */
+    const videoElement = document.getElementById('tv-video');
+    let hlsInstance = null;
+
+    /* ==========================================
+       CONTROL GENERAL Y NAVEGACIÓN
+       ========================================== */
+    function salirDeAplicacion() {
+      if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
+        Capacitor.Plugins.App.exitApp();
+      } else if (navigator.app && navigator.app.exitApp) {
+        navigator.app.exitApp();
+      } else {
+        window.close();
+      }
+    }
+
+    function navigateTo(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+
+      if (screenId === 'screen-home') {
+        if (videoElement) {
+          videoElement.pause();
+        }
+        if (hlsInstance) {
+          hlsInstance.stop();
+        }
+      }
+    }
+
+    function marcarBotonActivo(elemento) {
+      if (!elemento) return;
+      const contenedor = elemento.closest('.grid-buttons');
+      if (contenedor) {
+        contenedor.querySelectorAll('.boton-canal').forEach(b => b.classList.remove('active-item'));
+      }
+      elemento.classList.add('active-item');
+    }
+
+    /* ==========================================
+       REPRODUCTOR TV (HLS)
+       ========================================== */
+    function loadChannel(url, btn) {
+      marcarBotonActivo(btn);
+
+      if (Hls.isSupported()) {
+        if (hlsInstance) {
+          hlsInstance.destroy();
+        }
+        hlsInstance = new Hls();
+        hlsInstance.loadSource(url);
+        hlsInstance.attachMedia(videoElement);
+        
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+          videoElement.play().catch(e => console.log("Error al reproducir HLS:", e));
+        });
+
+        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            switch (data.details) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hlsInstance.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hlsInstance.recoverMediaError();
+                break;
+              default:
+                hlsInstance.destroy();
+                break;
+            }
+          }
+        });
+      } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+        videoElement.src = url;
+        videoElement.addEventListener('loadedmetadata', () => {
+          videoElement.play().catch(e => console.log("Error al reproducir nativo:", e));
+        });
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,6 +1,5 @@
 {
-  "appId": "com.mimusica.player",
-  "appName": "Mi Total Player",
-  "webDir": ".",
-  "bundledWebRuntime": false
+  "appId": "com.mitotalplayer.tvnews",
+  "appName": "TV-NEWS",
+  "webDir": "."
 }

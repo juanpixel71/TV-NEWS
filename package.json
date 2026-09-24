@@ -1,7 +1,7 @@
 {
-  "name": "mi-total-player",
+  "name": "TV-NEWS",
   "version": "1.0.0",
-  "description": "Mi Total Player APK",
+  "description": "Reproductor de TV",
   "main": "index.html",
   "scripts": {
     "build": "mkdir -p www assets && cp icon.png assets/icon.png 2>/dev/null || true && cp index.html bridge-music.js icon.png www/ 2>/dev/null || true",

@@ -262,56 +262,11 @@
       elemento.classList.add('active-item');
     }
 
-    function marcarAccionActiva(elemento) {
-      if (!elemento) return;
-      const contenedor = elemento.closest('.player-controls-row');
-      if (contenedor) {
-        contenedor.querySelectorAll('.btn-player-action').forEach(b => b.classList.remove('active-item'));
-      }
-      elemento.classList.add('active-item');
-    }
-
-    /* ==========================================
-       ACCIONES DE NAVEGACIÓN Y REPRODUCTOR
-       ========================================== */
-    function ampliarPantalla(btn) {
-      marcarAccionActiva(btn);
-      if (videoElement.requestFullscreen) {
-        videoElement.requestFullscreen();
-      } else if (videoElement.webkitRequestFullscreen) {
-        videoElement.webkitRequestFullscreen();
-      } else if (videoElement.msRequestFullscreen) {
-        videoElement.msRequestFullscreen();
-      } else if (videoElement.webkitEnterFullscreen) {
-        videoElement.webkitEnterFullscreen();
-      }
-    }
-
-    function pauseVideo(btn) {
-      marcarAccionActiva(btn);
-      if (videoElement) {
-        videoElement.pause();
-      }
-    }
-
-    function liveVideo(btn) {
-      marcarAccionActiva(btn);
-      if (videoElement) {
-        if (videoElement.duration && !isNaN(videoElement.duration)) {
-          videoElement.currentTime = videoElement.duration;
-        }
-        videoElement.play().catch(e => console.log("Error al reproducir en vivo:", e));
-      }
-    }
-
     /* ==========================================
        REPRODUCTOR TV (HLS)
        ========================================== */
     function loadChannel(url, btn) {
       marcarBotonActivo(btn);
-
-      const btnLive = document.getElementById('btn-live');
-      if (btnLive) marcarAccionActiva(btnLive);
 
       if (Hls.isSupported()) {
         if (hlsInstance) {
@@ -348,56 +303,58 @@
       }
     }
 
-// URL de la API oficial de GitHub para tu Gist
-const GIST_API_URL = 'https://api.github.com/gists/4dea433e849fcfda4869b1463f55e1f9';
+    /* ==========================================
+       CARGA DINÁMICA DE CANALES DESDE GITHUB GIST
+       ========================================== */
+    const GIST_API_URL = 'https://api.github.com/gists/4dea433e849fcfda4869b1463f55e1f9';
 
-async function cargarCanalesDesdeGist() {
-  const contenedorGrid = document.getElementById('grid-buttons');
-  
-  try {
-    const respuesta = await fetch(GIST_API_URL);
-    if (!respuesta.ok) throw new Error("No se pudo obtener el Gist");
-
-    const datosGist = await respuesta.json();
-    
-    // Obtenemos el contenido del archivo dentro del Gist
-    const nombreArchivo = Object.keys(datosGist.files)[0];
-    const contenidoRaw = datosGist.files[nombreArchivo].content;
-    
-    // Parseamos el texto a JSON
-    let canales = JSON.parse(contenidoRaw);
-
-    // Si el JSON incluye la clave "tv", extraemos el array interior
-    if (canales.tv) canales = canales.tv;
-
-    // Limpiamos el contenedor
-    contenedorGrid.innerHTML = '';
-
-    // Generamos los botones sin activar ninguno por defecto
-    canales.forEach((canal) => {
-      const nombreCanal = canal.nombre || canal.NOMBRE;
-      const urlCanal = canal.url || canal.URL;
-
-      const boton = document.createElement('button');
-      boton.className = 'boton-canal';
-      boton.textContent = nombreCanal;
+    async function cargarCanalesDesdeGist() {
+      const contenedorGrid = document.getElementById('grid-buttons');
       
-      boton.onclick = function() {
-        loadChannel(urlCanal, this);
-      };
+      try {
+        const respuesta = await fetch(GIST_API_URL);
+        if (!respuesta.ok) throw new Error("No se pudo obtener el Gist");
 
-      contenedorGrid.appendChild(boton);
-    });
+        const datosGist = await respuesta.json();
+        
+        // Obtenemos el contenido del primer archivo dentro del Gist
+        const nombreArchivo = Object.keys(datosGist.files)[0];
+        const contenidoRaw = datosGist.files[nombreArchivo].content;
+        
+        // Parseamos el texto a JSON
+        let canales = JSON.parse(contenidoRaw);
 
-  } catch (error) {
-    console.error('Error al cargar canales:', error);
-    contenedorGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
-  }
-}
+        // Si el JSON incluye la clave "tv", extraemos el array interior
+        if (canales.tv) canales = canales.tv;
 
-document.addEventListener('DOMContentLoaded', cargarCanalesDesdeGist);
+        // Limpiamos el contenedor
+        contenedorGrid.innerHTML = '';
 
-    
+        // Generamos los botones sin encender ningún canal por defecto
+        canales.forEach((canal) => {
+          const nombreCanal = canal.nombre || canal.NOMBRE;
+          const urlCanal = canal.url || canal.URL;
+
+          const boton = document.createElement('button');
+          boton.className = 'boton-canal';
+          boton.textContent = nombreCanal;
+          
+          boton.onclick = function() {
+            loadChannel(urlCanal, this);
+          };
+
+          contenedorGrid.appendChild(boton);
+        });
+
+      } catch (error) {
+        console.error('Error al cargar canales:', error);
+        contenedorGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
+      }
+    }
+
+    // Ejecutar la carga al cargar la interfaz
+    document.addEventListener('DOMContentLoaded', cargarCanalesDesdeGist);
   </script>
+  
 </body>
 </html>

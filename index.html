@@ -30,6 +30,14 @@
       overflow: hidden;
     }
 
+    /* Bloqueo de orientación Landscape en pantalla normal */
+    @media screen and (orientation: landscape) {
+      body:not(:has(:fullscreen)):not(:has(:webkit-fullscreen)) {
+        max-width: 100vh;
+        margin: 0 auto;
+      }
+    }
+
     .app-container {
       width: 100vw;
       height: 100dvh;
@@ -102,33 +110,7 @@
     }
 
     /* ==========================================
-       3. PANTALLA PRINCIPAL (HOME)
-       ========================================== */
-    .btn-main-home {
-      flex: 1;
-      background-color: #9D9D9C;
-      color: #FFFFFF;
-      border-radius: 12px;
-      font-size: 1.8rem;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      text-transform: uppercase;
-    }
-
-    .btn-main-home span { 
-      font-size: 3.5rem; 
-    }
-
-    .btn-main-home:active { 
-      background-color: #FF8C00; 
-    }
-
-    /* ==========================================
-       4. PANTALLA DE TV Y REPRODUCTOR HLS
+       3. PANTALLA DE TV Y REPRODUCTOR HLS
        ========================================== */
     .tv-container {
       display: flex;
@@ -168,6 +150,33 @@
       height: 100% !important;
       object-fit: contain !important;
       background-color: #000000 !important;
+    }
+
+    /* Estilos para los 3 botones debajo del reproductor */
+    .player-controls-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .btn-player-action {
+      flex: 1;
+      background-color: #9D9D9C;
+      color: #FFFFFF;
+      padding: 10px 4px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-player-action:active,
+    .btn-player-action.active-item {
+      background-color: #FF8C00 !important;
     }
 
     #screen-tv .grid-buttons {
@@ -223,21 +232,18 @@
 <body>
 
   <div class="app-container">
-    
-    <div id="screen-home" class="screen active">
-      <div class="header">MI TOTAL PLAYER</div>
-      <div class="view-content" style="justify-content: space-between;">
-        <button class="btn-main-home" onclick="navigateTo('screen-tv')"><span>📺</span> TV-NEWS</button>
-        <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
-      </div>
-    </div>
 
-    <div id="screen-tv" class="screen">
-      <div class="header">TV-NEWS</div>
+    <div id="screen-tv" class="screen active">
+      <div class="header">📺 TV-NEWS</div>
       <div class="view-content">
         <div class="tv-container">
           <div class="tv-video-box">
             <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+          </div>
+          <div class="player-controls-row">
+            <button id="btn-ampliar" class="btn-player-action" onclick="ampliarPantalla(this)">AMPLIAR PANTALLA</button>
+            <button id="btn-pause" class="btn-player-action" onclick="pauseVideo(this)">PAUSE</button>
+            <button id="btn-live" class="btn-player-action active-item" onclick="liveVideo(this)">LIVE</button>
           </div>
           <div class="tv-controls-box">
             <div class="grid-buttons">
@@ -252,7 +258,7 @@
             </div>
           </div>
         </div>
-        <button class="btn-nav-back" onclick="navigateTo('screen-home')">&lt; VOLVER HOME</button>
+        <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
       </div>
     </div>
 
@@ -264,6 +270,11 @@
        ========================================== */
     const videoElement = document.getElementById('tv-video');
     let hlsInstance = null;
+
+    // Bloquear rotación en dispositivos que lo soporten
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(() => {});
+    }
 
     /* ==========================================
        CONTROL GENERAL Y NAVEGACIÓN
@@ -278,21 +289,6 @@
       }
     }
 
-    function navigateTo(screenId) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      const target = document.getElementById(screenId);
-      if (target) target.classList.add('active');
-
-      if (screenId === 'screen-home') {
-        if (videoElement) {
-          videoElement.pause();
-        }
-        if (hlsInstance) {
-          hlsInstance.stop();
-        }
-      }
-    }
-
     function marcarBotonActivo(elemento) {
       if (!elemento) return;
       const contenedor = elemento.closest('.grid-buttons');
@@ -302,11 +298,56 @@
       elemento.classList.add('active-item');
     }
 
+    function marcarAccionActiva(elemento) {
+      if (!elemento) return;
+      const contenedor = elemento.closest('.player-controls-row');
+      if (contenedor) {
+        contenedor.querySelectorAll('.btn-player-action').forEach(b => b.classList.remove('active-item'));
+      }
+      elemento.classList.add('active-item');
+    }
+
+    /* ==========================================
+       ACCIONES DE NAVEGACIÓN Y REPRODUCTOR
+       ========================================== */
+    function ampliarPantalla(btn) {
+      marcarAccionActiva(btn);
+      if (videoElement.requestFullscreen) {
+        videoElement.requestFullscreen();
+      } else if (videoElement.webkitRequestFullscreen) {
+        videoElement.webkitRequestFullscreen();
+      } else if (videoElement.msRequestFullscreen) {
+        videoElement.msRequestFullscreen();
+      } else if (videoElement.webkitEnterFullscreen) {
+        videoElement.webkitEnterFullscreen();
+      }
+    }
+
+    function pauseVideo(btn) {
+      marcarAccionActiva(btn);
+      if (videoElement) {
+        videoElement.pause();
+      }
+    }
+
+    function liveVideo(btn) {
+      marcarAccionActiva(btn);
+      if (videoElement) {
+        if (videoElement.duration && !isNaN(videoElement.duration)) {
+          videoElement.currentTime = videoElement.duration;
+        }
+        videoElement.play().catch(e => console.log("Error al reproducir en vivo:", e));
+      }
+    }
+
     /* ==========================================
        REPRODUCTOR TV (HLS)
        ========================================== */
     function loadChannel(url, btn) {
       marcarBotonActivo(btn);
+
+      const btnLive = document.getElementById('btn-live');
+      if (btnLive) marcarAccionActiva(btnLive);
 
       if (Hls.isSupported()) {
         if (hlsInstance) {

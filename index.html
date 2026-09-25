@@ -153,33 +153,6 @@
       background-color: #000000 !important;
     }
 
-    /* Estilos para los 3 botones debajo del reproductor */
-    .player-controls-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 0;
-      width: 100%;
-      flex-shrink: 0;
-      padding: 0 15px; /* <--- AÑADIDO: 15px de margen a los lados */
-    }
-
-    .btn-player-action {
-      flex: 1;
-      background-color: #9D9D9C;
-      color: #FFFFFF;
-      padding: 10px 4px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
-      text-transform: uppercase;
-    }
-
-    .btn-player-action:active,
-    .btn-player-action.active-item {
-      background-color: #FF8C00 !important;
-    }
 
     #screen-tv .grid-buttons {
       display: grid;
@@ -242,20 +215,6 @@
           <div class="tv-video-box">
             <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
           </div>
-          <div class="player-controls-row">
-          <button id="btn-ampliar" class="btn-player-action" onclick="ampliarPantalla(this)">
-              <span class="icon">⛶</span> AMPLIAR
-            </button>
-            <button id="btn-pause" class="btn-player-action" onclick="pauseVideo(this)">
-              <span class="icon">⏸</span> PAUSE
-            </button>
-            <button id="btn-live" class="btn-player-action active-item" onclick="liveVideo(this)">LIVE</button>
-          </div>
-
-<!-- LÍNEA BLANCA DE SEPARACIÓN -->
-<div style="padding: 0 15px; width: 100%;">
-  <hr style="width: 100%; border: none; height: 1px; background-color: #FFFFFF; margin: 10px 0;">
-</div>
 
      <div class="tv-controls-box">
   <div class="grid-buttons" id="grid-buttons">

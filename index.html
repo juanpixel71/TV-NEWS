@@ -257,18 +257,11 @@
   <hr style="width: 100%; border: none; height: 1px; background-color: #FFFFFF; margin: 10px 0;">
 </div>
 
-          <div class="tv-controls-box">
-            <div class="grid-buttons">
-              <button class="boton-canal" onclick="loadChannel('https://live.france24.com/hls/live/2037179-b/F24_FR_HI_HLS/master_5000.m3u8', this)">FRANCE 24</button>
-              <button class="boton-canal" onclick="loadChannel('https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TV/index.m3u8', this)">BFM</button>
-              <button class="boton-canal" onclick="loadChannel('https://dash2.antik.sk/live/test_bbc_world/playlist.m3u8', this)">BBC NEWS</button>
-              <button class="boton-canal" onclick="loadChannel('https://ds2c506obo7m8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-7zjq3tdqasbg8/index.m3u8', this)">CNN</button>
-              <button class="boton-canal" onclick="loadChannel('https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA4YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8', this)">EURONEWS</button>
-              <button class="boton-canal" onclick="loadChannel('https://ztnr.rtve.es/ztnr/1694255.m3u8', this)">24 HORAS</button>
-              <button class="boton-canal" onclick="loadChannel('https://rtvelivestream.rtve.es/rtvesec/la1/la1_main_dvr.m3u8', this)">TVE LA 1</button>
-              <button class="boton-canal" onclick="loadChannel('https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8', this)">3CAT INFO</button>
-            </div>
-          </div>
+     <div class="tv-controls-box">
+  <div class="grid-buttons" id="grid-buttons">
+    <!-- Los botones se cargarán automáticamente desde el Gist -->
+  </div>
+</div>
         </div>
         <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
       </div>
@@ -395,6 +388,49 @@
         });
       }
     }
+
+// URL de tu Gist en GitHub
+const GIST_URL = 'https://gist.githubusercontent.com/juanpixel71/4dea433e849fcfda4869b1463f55e1f9/raw/canales.json';
+
+// Función para cargar canales desde el JSON
+async function cargarCanalesDesdeGist() {
+  const contenedorGrid = document.getElementById('grid-buttons');
+  
+  try {
+    const respuesta = await fetch(GIST_URL);
+    const canales = await respuesta.json();
+
+    // Limpiamos el contenedor por si acaso
+    contenedorGrid.innerHTML = '';
+
+    // Recorremos la lista del JSON para crear los botones
+    canales.forEach((canal, index) => {
+      const boton = document.createElement('button');
+      boton.className = 'boton-canal';
+      boton.textContent = canal.nombre; // Asegúrate de que coincida con el nombre del atributo en tu JSON
+      
+      // Asignamos el evento click
+      boton.onclick = function() {
+        loadChannel(canal.url, this);
+      };
+
+      contenedorGrid.appendChild(boton);
+
+      // Opcional: Reproducir automáticamente el primer canal de la lista al abrir
+      if (index === 0) {
+        loadChannel(canal.url, boton);
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al cargar la lista de canales:', error);
+    contenedorGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
+  }
+}
+
+// Ejecutar la carga al iniciar la página
+document.addEventListener('DOMContentLoaded', cargarCanalesDesdeGist);
+    
   </script>
 </body>
 </html>

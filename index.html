@@ -389,47 +389,55 @@
       }
     }
 
-// URL de tu Gist en GitHub
-const GIST_URL = 'https://gist.githubusercontent.com/juanpixel71/4dea433e849fcfda4869b1463f55e1f9/raw/canales.json';
+// URL de la API oficial de GitHub para tu Gist
+const GIST_API_URL = 'https://api.github.com/gists/4dea433e849fcfda4869b1463f55e1f9';
 
-// Función para cargar canales desde el JSON
 async function cargarCanalesDesdeGist() {
   const contenedorGrid = document.getElementById('grid-buttons');
   
   try {
-    const respuesta = await fetch(GIST_URL);
-    const canales = await respuesta.json();
+    const respuesta = await fetch(GIST_API_URL);
+    if (!respuesta.ok) throw new Error("No se pudo obtener el Gist");
 
-    // Limpiamos el contenedor por si acaso
+    const datosGist = await respuesta.json();
+    
+    // Obtenemos el contenido del archivo dentro del Gist
+    const nombreArchivo = Object.keys(datosGist.files)[0];
+    const contenidoRaw = datosGist.files[nombreArchivo].content;
+    
+    // Parseamos el texto a JSON
+    let canales = JSON.parse(contenidoRaw);
+
+    // Si el JSON incluye la clave "tv", extraemos el array interior
+    if (canales.tv) canales = canales.tv;
+
+    // Limpiamos el contenedor
     contenedorGrid.innerHTML = '';
 
-    // Recorremos la lista del JSON para crear los botones
-    canales.forEach((canal, index) => {
+    // Generamos los botones sin activar ninguno por defecto
+    canales.forEach((canal) => {
+      const nombreCanal = canal.nombre || canal.NOMBRE;
+      const urlCanal = canal.url || canal.URL;
+
       const boton = document.createElement('button');
       boton.className = 'boton-canal';
-      boton.textContent = canal.nombre; // Asegúrate de que coincida con el nombre del atributo en tu JSON
+      boton.textContent = nombreCanal;
       
-      // Asignamos el evento click
       boton.onclick = function() {
-        loadChannel(canal.url, this);
+        loadChannel(urlCanal, this);
       };
 
       contenedorGrid.appendChild(boton);
-
-      // Opcional: Reproducir automáticamente el primer canal de la lista al abrir
-      if (index === 0) {
-        loadChannel(canal.url, boton);
-      }
     });
 
   } catch (error) {
-    console.error('Error al cargar la lista de canales:', error);
+    console.error('Error al cargar canales:', error);
     contenedorGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
   }
 }
 
-// Ejecutar la carga al iniciar la página
 document.addEventListener('DOMContentLoaded', cargarCanalesDesdeGist);
+
     
   </script>
 </body>

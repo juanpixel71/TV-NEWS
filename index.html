@@ -188,9 +188,12 @@
       overflow-y: auto;
     }
 
+    /* Restauración exacta de Portrait */
     #screen-tv .btn-nav-back {
       width: calc(100% - 30px) !important;
-      margin: 0 15px;
+      margin: 0 15px !important;
+      padding: 16px !important;
+      font-size: 1.1rem !important;
       flex-shrink: 0;
     }
 
@@ -198,7 +201,6 @@
        4. ESTILOS MODO LANDSCAPE (HORIZONTAL)
        ========================================== */
     @media screen and (orientation: landscape) {
-      /* Fondo totalmente negro únicamente en landscape */
       html, body, .app-container, .screen {
         background-color: #000000 !important;
       }
@@ -222,13 +224,14 @@
         background-color: #000000 !important;
       }
 
+      /* Reproductor maximizado a pantalla completa salvo notch */
       .tv-video-box {
         flex: 1 !important;
         height: 100% !important;
+        width: 100% !important;
         aspect-ratio: unset !important;
         margin-bottom: 0 !important;
         background-color: #000000 !important;
-        /* Separación de la cámara / notch en el borde izquierdo */
         margin-left: max(25px, env(safe-area-inset-left, 25px)) !important;
       }
 
@@ -239,34 +242,37 @@
         background-color: #000000 !important;
       }
 
+      /* Columna de botones en Landscape */
       .tv-controls-box {
-        width: 180px !important;
-        max-width: 30vw !important;
+        width: 130px !important;
+        max-width: 25vw !important;
         height: 100% !important;
-        padding: 10px !important;
-        padding-right: calc(10px + env(safe-area-inset-right, 0px)) !important;
+        padding: 8px !important;
+        padding-right: calc(8px + env(safe-area-inset-right, 0px)) !important;
         overflow-y: auto !important;
         justify-content: flex-start !important;
         background-color: #000000 !important;
+        flex-shrink: 0 !important;
       }
 
       #screen-tv .grid-buttons {
         display: flex !important;
         flex-direction: column !important;
-        gap: 8px !important;
+        gap: 6px !important;
         flex: none !important;
       }
 
       .boton-canal {
-        height: 45px !important;
-        min-height: 45px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        font-size: 0.85rem !important;
         flex-shrink: 0 !important;
       }
 
       #screen-tv .btn-nav-back {
         width: 100% !important;
-        margin: 10px 0 0 0 !important;
-        height: 45px !important;
+        margin: 8px 0 0 0 !important;
+        height: 40px !important;
         padding: 0 !important;
         font-size: 0 !important;
         display: flex !important;
@@ -276,7 +282,7 @@
 
       #screen-tv .btn-nav-back::after {
         content: "< SALIR" !important;
-        font-size: 1rem !important;
+        font-size: 0.85rem !important;
         font-weight: bold !important;
       }
     }
@@ -314,7 +320,7 @@
     let hlsInstance = null;
 
     /* ==========================================
-       CONTROL GENERAL Y NAVEGACIÓN
+       CONTROL GENERAL Y SALIDA / BOTÓN ATRÁS DE ANDROID
        ========================================== */
     function salirDeAplicacion() {
       if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
@@ -326,108 +332,68 @@
       }
     }
 
-    function marcarBotonActivo(elemento) {
-      if (!elemento) return;
-      const contenedor = elemento.closest('.grid-buttons');
-      if (contenedor) {
-        contenedor.querySelectorAll('.boton-canal').forEach(b => b.classList.remove('active-item'));
-      }
-      elemento.classList.add('active-item');
+    // Manejador del botón o gesto "Atrás":
+    // Si el reproductor está en pantalla completa nativa -> Sale de Pantalla Completa y vuelve a Landscape
+    // Si no está en pantalla completa -> Cierra la app
+    function manejarBotonAtras() {
+      // 1. Si está en Fullscreen Nativo, salir de pantalla completa
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();Entendido perfectamente. Si el usuario está viendo el reproductor a pantalla completa y presiona el botón físico o gesto de "Atrás" de Android, el comportamiento esperado no es cerrar la aplicación de golpe, sino **salir del modo de pantalla completa y regresar al modo LANDSCAPE normal con la lista de botones**.
+
+Para lograr esto de forma limpia sin cerrar la aplicación inesperadamente, la lógica del botón "Atrás" debe comprobar si el reproductor está en pantalla completa nativa:
+1. **Si está en pantalla completa:** Cancela/sale de la pantalla completa y vuelve a la vista Landscape normal.
+2. **Si ya está en la vista Landscape normal:** Ejecuta la salida de la aplicación (`salirDeAplicacion()`).
+
+### Solución en el bloque `<script>`
+
+Reemplaza la función `habilitarBotonAtrasAndroid()` en tu script por la siguiente lógica:
+
+```javascript
+/* ==========================================
+   CONTROL DEL BOTÓN "ATRÁS" DE ANDROID / GESTO
+   ========================================== */
+function salirDePantallaCompletaOSalirApp() {
+  // 1. Si el vídeo está en modo pantalla completa nativo (HTML5 / Fullscreen API)
+  if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
     }
+    return; // Sale del modo pantalla completa y se queda en la app en LANDSCAPE
+  }
 
-    /* ==========================================
-       REPRODUCTOR TV (HLS)
-       ========================================== */
-    function loadChannel(url, btn) {
-      marcarBotonActivo(btn);
+  // 2. Si es un reproductor iOS / WebKit nativo en fullscreen
+  if (videoElement && videoElement.webkitDisplayingFullscreen) {
+    videoElement.webkitExitFullscreen();
+    return;
+  }
 
-      if (Hls.isSupported()) {
-        if (hlsInstance) {
-          hlsInstance.destroy();
-        }
-        hlsInstance = new Hls();
-        hlsInstance.loadSource(url);
-        hlsInstance.attachMedia(videoElement);
-        
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          videoElement.play().catch(e => console.log("Error al reproducir HLS:", e));
-        });
+  // 3. Si no está en pantalla completa, procede a salir de la aplicación
+  salirDeAplicacion();
+}
 
-        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            switch (data.details) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hlsInstance.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hlsInstance.recoverMediaError();
-                break;
-              default:
-                hlsInstance.destroy();
-                break;
-            }
-          }
-        });
-      } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-        videoElement.src = url;
-        videoElement.addEventListener('loadedmetadata', () => {
-          videoElement.play().catch(e => console.log("Error al reproducir nativo:", e));
-        });
-      }
-    }
+function habilitarBotonAtrasAndroid() {
+  // Manejo para Capacitor
+  if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
+    Capacitor.Plugins.App.addListener('backButton', () => {
+      salirDePantallaCompletaOSalirApp();
+    });
+  }
 
-    /* ==========================================
-       CARGA DINÁMICA DE CANALES DESDE GITHUB GIST
-       ========================================== */
-    const GIST_API_URL = 'https://api.github.com/gists/4dea433e849fcfda4869b1463f55e1f9';
+  // Manejo para Cordova / Android Webview
+  document.addEventListener('backbutton', (e) => {
+    e.preventDefault();
+    salirDePantallaCompletaOSalirApp();
+  }, false);
 
-    async function cargarCanalesDesdeGist() {
-      const contenedorGrid = document.getElementById('grid-buttons');
-      
-      try {
-        const respuesta = await fetch(GIST_API_URL);
-        if (!respuesta.ok) throw new Error("No se pudo obtener el Gist");
-
-        const datosGist = await respuesta.json();
-        
-        // Obtenemos el contenido del primer archivo dentro del Gist
-        const nombreArchivo = Object.keys(datosGist.files)[0];
-        const contenidoRaw = datosGist.files[nombreArchivo].content;
-        
-        // Parseamos el texto a JSON
-        let canales = JSON.parse(contenidoRaw);
-
-        // Si el JSON incluye la clave "tv", extraemos el array interior
-        if (canales.tv) canales = canales.tv;
-
-        // Limpiamos el contenedor
-        contenedorGrid.innerHTML = '';
-
-        // Generamos los botones sin encender ningún canal por defecto
-        canales.forEach((canal) => {
-          const nombreCanal = canal.nombre || canal.NOMBRE;
-          const urlCanal = canal.url || canal.URL;
-
-          const boton = document.createElement('button');
-          boton.className = 'boton-canal';
-          boton.textContent = nombreCanal;
-          
-          boton.onclick = function() {
-            loadChannel(urlCanal, this);
-          };
-
-          contenedorGrid.appendChild(boton);
-        });
-
-      } catch (error) {
-        console.error('Error al cargar canales:', error);
-        contenedorGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
-      }
-    }
-
-    // Ejecutar la carga al cargar la interfaz
-    document.addEventListener('DOMContentLoaded', cargarCanalesDesdeGist);
-  </script>
-
-</body>
-</html>
+  // Manejo para navegadores mediante el historial (gesto o botón del navegador)
+  history.pushState(null, null, location.href);
+  window.addEventListener('popstate', () => {
+    salirDePantallaCompletaOSalirApp();
+    history.pushState(null, null, location.href); // Mantiene la entrada para capturar siguientes clics
+  });
+}

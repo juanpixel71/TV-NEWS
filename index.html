@@ -30,14 +30,6 @@
       overflow: hidden;
     }
 
-    /* Bloqueo de orientación Landscape en pantalla normal */
-    @media screen and (orientation: landscape) {
-      body:not(:has(:fullscreen)):not(:has(:webkit-fullscreen)) {
-        max-width: 100vh;
-        margin: 0 auto;
-      }
-    }
-
     .app-container {
       width: 100vw;
       height: 100dvh;
@@ -110,7 +102,7 @@
     }
 
     /* ==========================================
-       3. PANTALLA DE TV Y REPRODUCTOR HLS
+       3. PANTALLA DE TV Y REPRODUCTOR HLS (PORTRAIT)
        ========================================== */
     .tv-container {
       display: flex;
@@ -128,7 +120,7 @@
       min-height: 0;
       width: 100%;
       justify-content: space-between;
-      padding: 0 15px; /* <--- AÑADIDO: 15px de margen a los lados */
+      padding: 0 15px;
     }
 
     .tv-video-box {
@@ -152,7 +144,6 @@
       object-fit: contain !important;
       background-color: #000000 !important;
     }
-
 
     #screen-tv .grid-buttons {
       display: grid;
@@ -190,18 +181,105 @@
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 12px 0; /* <--- CAMBIADO: 12px arriba/abajo y 0 a los lados */
+      padding: 12px 0;
       box-sizing: border-box;
       flex: 1;
       min-height: 0;
       overflow-y: auto;
     }
 
-#screen-tv .btn-nav-back {
-  width: calc(100% - 30px) !important; /* <--- AJUSTADO: resta los 15px de cada lado */
-  margin: 0 15px; /* <--- AÑADIDO: margen lateral */
-  flex-shrink: 0;
-}
+    #screen-tv .btn-nav-back {
+      width: calc(100% - 30px) !important;
+      margin: 0 15px;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================
+       4. ESTILOS MODO LANDSCAPE (HORIZONTAL)
+       ========================================== */
+    @media screen and (orientation: landscape) {
+      /* Fondo totalmente negro únicamente en landscape */
+      html, body, .app-container, .screen {
+        background-color: #000000 !important;
+      }
+
+      .header {
+        display: none !important;
+      }
+
+      #screen-tv .view-content {
+        flex-direction: row !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        overflow: hidden !important;
+        background-color: #000000 !important;
+      }
+
+      #screen-tv .tv-container {
+        flex-direction: row !important;
+        height: 100% !important;
+        width: 100% !important;
+        background-color: #000000 !important;
+      }
+
+      .tv-video-box {
+        flex: 1 !important;
+        height: 100% !important;
+        aspect-ratio: unset !important;
+        margin-bottom: 0 !important;
+        background-color: #000000 !important;
+        /* Separación de la cámara / notch en el borde izquierdo */
+        margin-left: max(25px, env(safe-area-inset-left, 25px)) !important;
+      }
+
+      #tv-video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        background-color: #000000 !important;
+      }
+
+      .tv-controls-box {
+        width: 180px !important;
+        max-width: 30vw !important;
+        height: 100% !important;
+        padding: 10px !important;
+        padding-right: calc(10px + env(safe-area-inset-right, 0px)) !important;
+        overflow-y: auto !important;
+        justify-content: flex-start !important;
+        background-color: #000000 !important;
+      }
+
+      #screen-tv .grid-buttons {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        flex: none !important;
+      }
+
+      .boton-canal {
+        height: 45px !important;
+        min-height: 45px !important;
+        flex-shrink: 0 !important;
+      }
+
+      #screen-tv .btn-nav-back {
+        width: 100% !important;
+        margin: 10px 0 0 0 !important;
+        height: 45px !important;
+        padding: 0 !important;
+        font-size: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      #screen-tv .btn-nav-back::after {
+        content: "< SALIR" !important;
+        font-size: 1rem !important;
+        font-weight: bold !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -216,13 +294,13 @@
             <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
           </div>
 
-     <div class="tv-controls-box">
-  <div class="grid-buttons" id="grid-buttons">
-    <!-- Los botones se cargarán automáticamente desde el Gist -->
-  </div>
-</div>
+          <div class="tv-controls-box">
+            <div class="grid-buttons" id="grid-buttons">
+              <!-- Los botones se cargarán automáticamente desde el Gist -->
+            </div>
+            <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
+          </div>
         </div>
-        <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
       </div>
     </div>
 
@@ -234,11 +312,6 @@
        ========================================== */
     const videoElement = document.getElementById('tv-video');
     let hlsInstance = null;
-
-    // Bloquear rotación en dispositivos que lo soporten
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('portrait').catch(() => {});
-    }
 
     /* ==========================================
        CONTROL GENERAL Y NAVEGACIÓN
@@ -355,6 +428,6 @@
     // Ejecutar la carga al cargar la interfaz
     document.addEventListener('DOMContentLoaded', cargarCanalesDesdeGist);
   </script>
-  
+
 </body>
 </html>

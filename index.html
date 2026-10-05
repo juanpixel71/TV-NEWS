@@ -9,7 +9,7 @@
 
   <style>
     /* ==========================================
-       1. ESTILOS GLOBALES Y RESET
+       1. ESTILOS GLOBALES Y RESET (PORTRAIT ORIGINAL)
        ========================================== */
     * {
       box-sizing: border-box;
@@ -28,14 +28,6 @@
       background-color: #3C3C3B;
       color: #FFFFFF;
       overflow: hidden;
-    }
-
-    /* Bloqueo de orientación Landscape en pantalla normal */
-    @media screen and (orientation: landscape) {
-      body:not(:has(:fullscreen)):not(:has(:webkit-fullscreen)) {
-        max-width: 100vh;
-        margin: 0 auto;
-      }
     }
 
     .app-container {
@@ -62,7 +54,7 @@
     }
 
     /* ==========================================
-       2. NAVEGACIÓN Y PANTALLAS
+       2. NAVEGACIÓN Y PANTALLAS (PORTRAIT ORIGINAL)
        ========================================== */
     .screen {
       display: none;
@@ -110,7 +102,7 @@
     }
 
     /* ==========================================
-       3. PANTALLA DE TV Y REPRODUCTOR HLS
+       3. PANTALLA DE TV Y REPRODUCTOR (PORTRAIT ORIGINAL)
        ========================================== */
     .tv-container {
       display: flex;
@@ -128,7 +120,7 @@
       min-height: 0;
       width: 100%;
       justify-content: space-between;
-      padding: 0 15px; /* <--- AÑADIDO: 15px de margen a los lados */
+      padding: 0 15px;
     }
 
     .tv-video-box {
@@ -152,7 +144,6 @@
       object-fit: contain !important;
       background-color: #000000 !important;
     }
-
 
     #screen-tv .grid-buttons {
       display: grid;
@@ -190,18 +181,100 @@
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 12px 0; /* <--- CAMBIADO: 12px arriba/abajo y 0 a los lados */
+      padding: 12px 0;
       box-sizing: border-box;
       flex: 1;
       min-height: 0;
       overflow-y: auto;
     }
 
-#screen-tv .btn-nav-back {
-  width: calc(100% - 30px) !important; /* <--- AJUSTADO: resta los 15px de cada lado */
-  margin: 0 15px; /* <--- AÑADIDO: margen lateral */
-  flex-shrink: 0;
-}
+    #screen-tv .btn-nav-back {
+      width: calc(100% - 30px) !important;
+      margin: 0 15px;
+      flex-shrink: 0;
+    }
+
+    /* Ocultar contenedor exclusivo de Landscape en modo Portrait */
+    .landscape-layout {
+      display: none !important;
+    }
+
+    /* ==========================================
+       4. ESTRUCTURA INDEPENDIENTE PARA LANDSCAPE
+       ========================================== */
+    @media screen and (orientation: landscape) {
+      /* Cambiar fondo a negro total */
+      html, body, .app-container, .screen {
+        background-color: #000000 !important;
+      }
+
+      /* Ocultar elementos de Portrait */
+      .header, .portrait-layout {
+        display: none !important;
+      }
+
+      /* Activar maquetación exclusiva Landscape */
+      .landscape-layout {
+        display: flex !important;
+        flex-direction: row !important;
+        width: 100vw !important;
+        height: 100dvh !important;
+        overflow: hidden !important;
+        background-color: #000000 !important;
+      }
+
+      /* Contenedor del vídeo maximizado en Landscape */
+      .landscape-video-container {
+        flex: 1 !important;
+        height: 100% !important;
+        background-color: #000000 !important;
+        /* Margen de seguridad para saltar el notch/cámara */
+        margin-left: max(25px, env(safe-area-inset-left, 25px)) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      /* Columna derecha de controles */
+      .landscape-sidebar {
+        width: 130px !important;
+        max-width: 25vw !important;
+        height: 100% !important;
+        background-color: #000000 !important;
+        padding: 8px !important;
+        padding-right: calc(8px + env(safe-area-inset-right, 0px)) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        overflow-y: auto !important;
+        flex-shrink: 0 !important;
+      }
+
+      .landscape-sidebar .grid-buttons {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        width: 100% !important;
+      }
+
+      .landscape-sidebar .boton-canal {
+        height: 40px !important;
+        min-height: 40px !important;
+        font-size: 0.85rem !important;
+        flex-shrink: 0 !important;
+      }
+
+      .landscape-sidebar .btn-nav-back {
+        width: 100% !important;
+        margin-top: 8px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        font-size: 0.85rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -210,20 +283,39 @@
 
     <div id="screen-tv" class="screen active">
       <div class="header">TV-NEWS</div>
-      <div class="view-content">
+      
+      <!-- ================= ESTRUCTURA PORTRAIT (ORIGINAL) ================= -->
+      <div class="view-content portrait-layout">
         <div class="tv-container">
           <div class="tv-video-box">
-            <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+            <!-- El tag de video real se mueve dinámicamente según la orientación -->
+            <div id="video-wrapper-portrait" style="width:100%; height:100%;">
+              <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+            </div>
           </div>
 
-     <div class="tv-controls-box">
-  <div class="grid-buttons" id="grid-buttons">
-    <!-- Los botones se cargarán automáticamente desde el Gist -->
-  </div>
-</div>
+          <div class="tv-controls-box">
+            <div class="grid-buttons" id="grid-buttons-portrait">
+              <!-- Carga de botones Portrait -->
+            </div>
+          </div>
         </div>
         <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
       </div>
+
+      <!-- ================= ESTRUCTURA LANDSCAPE (INDEPENDIENTE) ================= -->
+      <div class="landscape-layout">
+        <div class="landscape-video-container" id="video-wrapper-landscape">
+          <!-- Aquí se inserta el vídeo al rotar horizontal -->
+        </div>
+        <div class="landscape-sidebar">
+          <div class="grid-buttons" id="grid-buttons-landscape">
+            <!-- Carga de botones Landscape -->
+          </div>
+          <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR</button>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -233,15 +325,32 @@
        VARIABLES GLOBALES Y ELEMENTOS DOM
        ========================================== */
     const videoElement = document.getElementById('tv-video');
+    const wrapperPortrait = document.getElementById('video-wrapper-portrait');
+    const wrapperLandscape = document.getElementById('video-wrapper-landscape');
     let hlsInstance = null;
-
-    // Bloquear rotación en dispositivos que lo soporten
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('portrait').catch(() => {});
-    }
+    let urlCanalActual = null;
 
     /* ==========================================
-       CONTROL GENERAL Y NAVEGACIÓN
+       REUBICACIÓN AUTOMÁTICA DEL REPRODUCTOR
+       ========================================== */
+    function adaptarReproductorPorOrientacion() {
+      const esLandscape = window.matchMedia("(orientation: landscape)").matches;
+      if (esLandscape) {
+        if (!wrapperLandscape.contains(videoElement)) {
+          wrapperLandscape.appendChild(videoElement);
+        }
+      } else {
+        if (!wrapperPortrait.contains(videoElement)) {
+          wrapperPortrait.appendChild(videoElement);
+        }
+      }
+    }
+
+    window.addEventListener('resize', adaptarReproductorPorOrientacion);
+    window.addEventListener('orientationchange', adaptarReproductorPorOrientacion);
+
+    /* ==========================================
+       CONTROL GENERAL Y SALIDA / BOTÓN ATRÁS ANDROID
        ========================================== */
     function salirDeAplicacion() {
       if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
@@ -253,20 +362,61 @@
       }
     }
 
-    function marcarBotonActivo(elemento) {
-      if (!elemento) return;
-      const contenedor = elemento.closest('.grid-buttons');
-      if (contenedor) {
-        contenedor.querySelectorAll('.boton-canal').forEach(b => b.classList.remove('active-item'));
+    function salirDePantallaCompletaOSalirApp() {
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        }
+        return;
       }
-      elemento.classList.add('active-item');
+
+      if (videoElement && videoElement.webkitDisplayingFullscreen) {
+        videoElement.webkitExitFullscreen();
+        return;
+      }
+
+      salirDeAplicacion();
+    }
+
+    function habilitarBotonAtrasAndroid() {
+      if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
+        Capacitor.Plugins.App.addListener('backButton', () => {
+          salirDePantallaCompletaOSalirApp();
+        });
+      }
+
+      document.addEventListener('backbutton', (e) => {
+        e.preventDefault();
+        salirDePantallaCompletaOSalirApp();
+      }, false);
+
+      history.pushState(null, null, location.href);
+      window.addEventListener('popstate', () => {
+        salirDePantallaCompletaOSalirApp();
+        history.pushState(null, null, location.href);
+      });
+    }
+
+    function marcarBotonActivo(url) {
+      document.querySelectorAll('.boton-canal').forEach(b => {
+        if (b.dataset.url === url) {
+          b.classList.add('active-item');
+        } else {
+          b.classList.remove('active-item');
+        }
+      });
     }
 
     /* ==========================================
        REPRODUCTOR TV (HLS)
        ========================================== */
-    function loadChannel(url, btn) {
-      marcarBotonActivo(btn);
+    function loadChannel(url) {
+      urlCanalActual = url;
+      marcarBotonActivo(url);
 
       if (Hls.isSupported()) {
         if (hlsInstance) {
@@ -309,52 +459,59 @@
     const GIST_API_URL = 'https://api.github.com/gists/4dea433e849fcfda4869b1463f55e1f9';
 
     async function cargarCanalesDesdeGist() {
-      const contenedorGrid = document.getElementById('grid-buttons');
+      const gridPortrait = document.getElementById('grid-buttons-portrait');
+      const gridLandscape = document.getElementById('grid-buttons-landscape');
       
       try {
         const respuesta = await fetch(GIST_API_URL);
         if (!respuesta.ok) throw new Error("No se pudo obtener el Gist");
 
         const datosGist = await respuesta.json();
-        
-        // Obtenemos el contenido del primer archivo dentro del Gist
         const nombreArchivo = Object.keys(datosGist.files)[0];
         const contenidoRaw = datosGist.files[nombreArchivo].content;
         
-        // Parseamos el texto a JSON
         let canales = JSON.parse(contenidoRaw);
-
-        // Si el JSON incluye la clave "tv", extraemos el array interior
         if (canales.tv) canales = canales.tv;
 
-        // Limpiamos el contenedor
-        contenedorGrid.innerHTML = '';
+        gridPortrait.innerHTML = '';
+        gridLandscape.innerHTML = '';
 
-        // Generamos los botones sin encender ningún canal por defecto
         canales.forEach((canal) => {
           const nombreCanal = canal.nombre || canal.NOMBRE;
           const urlCanal = canal.url || canal.URL;
 
-          const boton = document.createElement('button');
-          boton.className = 'boton-canal';
-          boton.textContent = nombreCanal;
-          
-          boton.onclick = function() {
-            loadChannel(urlCanal, this);
-          };
+          // Crear botón para Portrait
+          const botonPortrait = document.createElement('button');
+          botonPortrait.className = 'boton-canal';
+          botonPortrait.textContent = nombreCanal;
+          botonPortrait.dataset.url = urlCanal;
+          botonPortrait.onclick = () => loadChannel(urlCanal);
 
-          contenedorGrid.appendChild(boton);
+          // Crear botón para Landscape
+          const botonLandscape = document.createElement('button');
+          botonLandscape.className = 'boton-canal';
+          botonLandscape.textContent = nombreCanal;
+          botonLandscape.dataset.url = urlCanal;
+          botonLandscape.onclick = () => loadChannel(urlCanal);
+
+          gridPortrait.appendChild(botonPortrait);
+          gridLandscape.appendChild(botonLandscape);
         });
 
       } catch (error) {
         console.error('Error al cargar canales:', error);
-        contenedorGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
+        gridPortrait.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
+        gridLandscape.innerHTML = '<p style="color: white; text-align: center;">Error al cargar canales</p>';
       }
     }
 
-    // Ejecutar la carga al cargar la interfaz
-    document.addEventListener('DOMContentLoaded', cargarCanalesDesdeGist);
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      adaptarReproductorPorOrientacion();
+      cargarCanalesDesdeGist();
+      habilitarBotonAtrasAndroid();
+    });
   </script>
-  
+
 </body>
 </html>

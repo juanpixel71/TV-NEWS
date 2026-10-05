@@ -203,7 +203,7 @@
        4. ESTRUCTURA INDEPENDIENTE PARA LANDSCAPE
        ========================================== */
     @media screen and (orientation: landscape) {
-      /* Cambiar fondo a negro total */
+      /* Fondo negro absoluto */
       html, body, .app-container, .screen {
         background-color: #000000 !important;
       }
@@ -213,7 +213,7 @@
         display: none !important;
       }
 
-      /* Activar maquetación exclusiva Landscape */
+      /* Layout horizontal en Landscape */
       .landscape-layout {
         display: flex !important;
         flex-direction: row !important;
@@ -223,19 +223,18 @@
         background-color: #000000 !important;
       }
 
-      /* Contenedor del vídeo maximizado en Landscape */
+      /* Contenedor del reproductor */
       .landscape-video-container {
         flex: 1 !important;
         height: 100% !important;
         background-color: #000000 !important;
-        /* Margen de seguridad para saltar el notch/cámara */
         margin-left: max(25px, env(safe-area-inset-left, 25px)) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
       }
 
-      /* Columna derecha de controles */
+      /* Columna de scroll unificada */
       .landscape-sidebar {
         width: 130px !important;
         max-width: 25vw !important;
@@ -245,7 +244,7 @@
         padding-right: calc(8px + env(safe-area-inset-right, 0px)) !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: flex-start !important;
+        gap: 6px !important;
         overflow-y: auto !important;
         flex-shrink: 0 !important;
       }
@@ -261,18 +260,26 @@
         height: 40px !important;
         min-height: 40px !important;
         font-size: 0.85rem !important;
+        border-radius: 8px !important;
         flex-shrink: 0 !important;
       }
 
+      /* Botón < SALIR integrado al final en el mismo flujo */
       .landscape-sidebar .btn-nav-back {
         width: 100% !important;
-        margin-top: 8px !important;
         height: 40px !important;
+        min-height: 40px !important;
+        margin: 0 !important;
         padding: 0 !important;
         font-size: 0.85rem !important;
+        border-radius: 8px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        background-color: #FF8C00 !important;
+        color: #FFFFFF !important;
+        font-weight: bold !important;
+        flex-shrink: 0 !important;
       }
     }
   </style>
@@ -288,7 +295,6 @@
       <div class="view-content portrait-layout">
         <div class="tv-container">
           <div class="tv-video-box">
-            <!-- El tag de video real se mueve dinámicamente según la orientación -->
             <div id="video-wrapper-portrait" style="width:100%; height:100%;">
               <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
             </div>
@@ -306,7 +312,7 @@
       <!-- ================= ESTRUCTURA LANDSCAPE (INDEPENDIENTE) ================= -->
       <div class="landscape-layout">
         <div class="landscape-video-container" id="video-wrapper-landscape">
-          <!-- Aquí se inserta el vídeo al rotar horizontal -->
+          <!-- El video se traslada aquí al rotar -->
         </div>
         <div class="landscape-sidebar">
           <div class="grid-buttons" id="grid-buttons-landscape">
@@ -328,7 +334,6 @@
     const wrapperPortrait = document.getElementById('video-wrapper-portrait');
     const wrapperLandscape = document.getElementById('video-wrapper-landscape');
     let hlsInstance = null;
-    let urlCanalActual = null;
 
     /* ==========================================
        REUBICACIÓN AUTOMÁTICA DEL REPRODUCTOR
@@ -415,7 +420,6 @@
        REPRODUCTOR TV (HLS)
        ========================================== */
     function loadChannel(url) {
-      urlCanalActual = url;
       marcarBotonActivo(url);
 
       if (Hls.isSupported()) {
@@ -480,14 +484,14 @@
           const nombreCanal = canal.nombre || canal.NOMBRE;
           const urlCanal = canal.url || canal.URL;
 
-          // Crear botón para Portrait
+          // Botón Portrait
           const botonPortrait = document.createElement('button');
           botonPortrait.className = 'boton-canal';
           botonPortrait.textContent = nombreCanal;
           botonPortrait.dataset.url = urlCanal;
           botonPortrait.onclick = () => loadChannel(urlCanal);
 
-          // Crear botón para Landscape
+          // Botón Landscape
           const botonLandscape = document.createElement('button');
           botonLandscape.className = 'boton-canal';
           botonLandscape.textContent = nombreCanal;

@@ -40,13 +40,13 @@
     }
 
     .header {
-      background-color: #FF8C00;
+      background-color: #000000;
       color: #FFFFFF;
       padding: 16px;
       padding-top: calc(20px + env(safe-area-inset-top, 20px));
       text-align: center;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       letter-spacing: 1px;
       text-transform: uppercase;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
@@ -64,7 +64,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #3C3C3B;
+      background-color: #000000;
     }
 
     .screen.active {
@@ -83,7 +83,7 @@
     }
 
     .btn-nav-back {
-      background-color: #FF8C00;
+      background-color: #292929;
       color: #FFFFFF;
       padding: 16px;
       text-align: center;
@@ -163,7 +163,7 @@
       color: #FFFFFF;
       padding: 6px 4px;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 1.3rem;
       font-weight: bold;
       text-align: center;
       cursor: pointer;
@@ -172,7 +172,7 @@
     }
 
     .boton-canal.active-item { 
-      background-color: #FF8C00 !important; 
+      background-color: #292929 !important; 
     }
 
     #screen-tv .view-content {
@@ -271,7 +271,7 @@
   <div class="app-container">
 
     <div id="screen-tv" class="screen active">
-      <div class="header">TV-NEWS</div>
+      <div class="header">📺 TV-NEWS</div>
       
       <!-- ================= ESTRUCTURA PORTRAIT (ORIGINAL) ================= -->
       <div class="view-content portrait-layout">
@@ -439,61 +439,53 @@
     }
 
     /* ==========================================
-       CARGA DINÁMICA DE CANALES DESDE GITHUB GIST
+       CARGA DE CANALES INTERNOS (LOCAL)
        ========================================== */
-    const GIST_API_URL = 'https://api.github.com/gists/4dea433e849fcfda4869b1463f55e1f9';
+    const canalesLocales = [
+      { "nombre": "FRANCE 24", "url": "https://live.france24.com/hls/live/2037179-b/F24_FR_HI_HLS/master_5000.m3u8" },
+      { "nombre": "BFM", "url": "https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TV/index.m3u8" },
+      { "nombre": "BBC NEWS", "url": "https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8" },
+      { "nombre": "CNN", "url": "https://ds2c506obo7m8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-7zjq3tdqasbg8/index.m3u8" },
+      { "nombre": "EURONEWS", "url": "https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA0YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8" },
+      { "nombre": "24 HORAS", "url": "https://ztnr.rtve.es/ztnr/1694255.m3u8" },
+      { "nombre": "TVE LA 1", "url": "https://rtvelivestream.rtve.es/rtvesec/la1/la1_main_dvr.m3u8" },
+      { "nombre": "3CAT INFO", "url": "https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8" }
+    ];
 
-    async function cargarCanalesDesdeGist() {
+    function cargarCanalesLocales() {
       const gridPortrait = document.getElementById('grid-buttons-portrait');
       const gridLandscape = document.getElementById('grid-buttons-landscape');
       
-      try {
-        const respuesta = await fetch(GIST_API_URL);
-        if (!respuesta.ok) throw new Error("No se pudo obtener el Gist");
+      gridPortrait.innerHTML = '';
+      gridLandscape.innerHTML = '';
 
-        const datosGist = await respuesta.json();
-        const nombreArchivo = Object.keys(datosGist.files)[0];
-        const contenidoRaw = datosGist.files[nombreArchivo].content;
-        
-        let canales = JSON.parse(contenidoRaw);
-        if (canales.tv) canales = canales.tv;
+      canalesLocales.forEach((canal) => {
+        const nombreCanal = canal.nombre;
+        const urlCanal = canal.url;
 
-        gridPortrait.innerHTML = '';
-        gridLandscape.innerHTML = '';
+        // Botón Portrait
+        const botonPortrait = document.createElement('button');
+        botonPortrait.className = 'boton-canal';
+        botonPortrait.textContent = nombreCanal;
+        botonPortrait.dataset.url = urlCanal;
+        botonPortrait.onclick = () => loadChannel(urlCanal);
 
-        canales.forEach((canal) => {
-          const nombreCanal = canal.nombre || canal.NOMBRE;
-          const urlCanal = canal.url || canal.URL;
+        // Botón Landscape
+        const botonLandscape = document.createElement('button');
+        botonLandscape.className = 'boton-canal';
+        botonLandscape.textContent = nombreCanal;
+        botonLandscape.dataset.url = urlCanal;
+        botonLandscape.onclick = () => loadChannel(urlCanal);
 
-          // Botón Portrait
-          const botonPortrait = document.createElement('button');
-          botonPortrait.className = 'boton-canal';
-          botonPortrait.textContent = nombreCanal;
-          botonPortrait.dataset.url = urlCanal;
-          botonPortrait.onclick = () => loadChannel(urlCanal);
-
-          // Botón Landscape
-          const botonLandscape = document.createElement('button');
-          botonLandscape.className = 'boton-canal';
-          botonLandscape.textContent = nombreCanal;
-          botonLandscape.dataset.url = urlCanal;
-          botonLandscape.onclick = () => loadChannel(urlCanal);
-
-          gridPortrait.appendChild(botonPortrait);
-          gridLandscape.appendChild(botonLandscape);
-        });
-
-      } catch (error) {
-        console.error('Error al cargar canales:', error);
-        gridPortrait.innerHTML = '<p style="color: white; text-align: center; grid-column: span 2;">Error al cargar canales</p>';
-        gridLandscape.innerHTML = '<p style="color: white; text-align: center;">Error al cargar canales</p>';
-      }
+        gridPortrait.appendChild(botonPortrait);
+        gridLandscape.appendChild(botonLandscape);
+      });
     }
 
     // Inicialización
     document.addEventListener('DOMContentLoaded', () => {
       adaptarReproductorPorOrientacion();
-      cargarCanalesDesdeGist();
+      cargarCanalesLocales();
       habilitarBotonAtrasAndroid();
     });
   </script>

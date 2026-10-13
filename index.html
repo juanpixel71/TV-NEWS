@@ -9,7 +9,7 @@
 
   <style>
     /* ==========================================
-       1. ESTILOS GLOBALES Y RESET (PORTRAIT ORIGINAL)
+       1. ESTILOS GLOBALES Y RESET
        ========================================== */
     * {
       box-sizing: border-box;
@@ -28,6 +28,8 @@
       background-color: #3C3C3B;
       color: #FFFFFF;
       overflow: hidden;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     .app-container {
@@ -39,11 +41,6 @@
       background-color: #3C3C3B;
     }
 
-
-
-    /* ==========================================
-       2. NAVEGACIÓN Y PANTALLAS (PORTRAIT ORIGINAL)
-       ========================================== */
     .screen {
       display: none;
       flex-direction: column;
@@ -59,17 +56,6 @@
       display: flex !important;
     }
 
-    .view-content {
-      flex: 1;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 10px;
-      overflow-y: auto;
-      min-height: 0;
-    }
-
     .btn-nav-back {
       background-color: #292929;
       color: #FFFFFF;
@@ -79,7 +65,6 @@
       font-size: 1.05rem;
       cursor: pointer;
       border-radius: 10px;
-      margin-top: 0;
       text-decoration: none;
       text-transform: uppercase;
       flex-shrink: 0;
@@ -90,75 +75,79 @@
     }
 
     /* ==========================================
-       3. PANTALLA DE TV Y REPRODUCTOR (PORTRAIT ORIGINAL)
+       2. ESTRUCTURA AISLADA: PORTRAIT
        ========================================== */
-    .tv-container {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      justify-content: space-between;
-    }
-
-    .tv-controls-box {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      justify-content: space-between;
-      padding: 0 15px;
-    }
-
-  .tv-video-box {
+    .portrait-layout {
+      display: flex !important;
+      flex-direction: column !important;
       width: 100% !important;
-      height: 50dvh !important; /* Ocupa exactamente la mitad superior de la pantalla */
-      max-height: 50dvh !important;
-      aspect-ratio: unset !important;
+      height: 100% !important;
       background-color: #000000 !important;
-      border-radius: 0 !important;
+      padding: 12px 15px calc(12px + env(safe-area-inset-bottom, 0px)) 15px !important;
+      justify-content: space-between !important;
+      overflow: hidden !important;
+    }
+
+    .portrait-video-box {
+      width: 100% !important;
+      height: 50dvh !important;
+      max-height: 50dvh !important;
+      background-color: #000000 !important;
       flex-shrink: 0 !important;
       overflow: hidden !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      margin-bottom: 0 !important;
       position: relative !important;
-      /* Salva el notch de la cámara arriba ya que no hay header */
-      padding-top: env(safe-area-inset-top, 0px) !important; 
     }
 
-  #tv-video {
+    #video-wrapper-portrait {
       width: 100% !important;
       height: 100% !important;
-      /* Recorta los laterales para ajustarse a 1/2 pantalla en alto */
-      object-fit: cover !important; 
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    #tv-video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
       background-color: #000000 !important;
     }
 
-    #screen-tv .grid-buttons {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      gap: 8px;
-      flex: 1;
-      min-height: 0;
-      width: 100%;
+    .portrait-controls-box {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      width: 100% !important;
+      justify-content: space-between !important;
+      margin: 10px 0 !important;
     }
 
-    .boton-canal {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #9D9D9C;
-      color: #FFFFFF;
-      padding: 6px 4px;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
+    #grid-buttons-portrait {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      grid-template-rows: repeat(4, 1fr) !important;
+      gap: 8px !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      width: 100% !important;
+    }
+
+    .portrait-layout .boton-canal {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background-color: #9D9D9C !important;
+      color: #FFFFFF !important;
+      padding: 4px 2px !important;
+      border-radius: 8px !important;
+      font-size: 1rem !important;
+      font-weight: bold !important;
+      text-align: center !important;
+      cursor: pointer !important;
       height: 100% !important;
       width: 100% !important;
     }
@@ -167,42 +156,31 @@
       background-color: #292929 !important; 
     }
 
-    #screen-tv .view-content {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 0;
-      box-sizing: border-box;
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
+    .portrait-layout .btn-nav-back {
+      width: 100% !important;
+      margin-top: 8px !important;
+      flex-shrink: 0 !important;
     }
 
-    #screen-tv .btn-nav-back {
-      width: calc(100% - 30px) !important;
-      margin: 0 15px;
-      flex-shrink: 0;
-    }
-
-    /* Ocultar contenedor exclusivo de Landscape en modo Portrait */
+    /* Ocultar Landscape en modo Portrait */
     .landscape-layout {
       display: none !important;
     }
 
     /* ==========================================
-       4. ESTRUCTURA INDEPENDIENTE PARA LANDSCAPE
+       3. ESTRUCTURA AISLADA: LANDSCAPE
        ========================================== */
     @media screen and (orientation: landscape) {
-      /* Fondo negro absoluto */
       html, body, .app-container, .screen {
         background-color: #000000 !important;
       }
 
+      /* Ocultar por completo Portrait en Landscape */
+      .portrait-layout {
+        display: none !important;
+      }
 
-
-      /* Layout horizontal en Landscape */
+      /* Layout horizontal personalizado */
       .landscape-layout {
         display: flex !important;
         flex-direction: row !important;
@@ -212,7 +190,6 @@
         background-color: #000000 !important;
       }
 
-      /* Contenedor del reproductor */
       .landscape-video-container {
         flex: 1 !important;
         height: 100% !important;
@@ -221,9 +198,24 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        overflow: hidden !important;
       }
 
-      /* Columna exclusiva de canales con scroll */
+      #video-wrapper-landscape {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      /* En landscape el video usa contain para ocupar casi toda la pantalla sin desbordar */
+      .landscape-layout #tv-video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+      }
+
       .landscape-sidebar {
         width: 130px !important;
         max-width: 25vw !important;
@@ -251,6 +243,13 @@
         font-size: 0.85rem !important;
         border-radius: 8px !important;
         flex-shrink: 0 !important;
+        background-color: #9D9D9C !important;
+        color: #FFFFFF !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
       }
     }
   </style>
@@ -260,29 +259,30 @@
   <div class="app-container">
 
     <div id="screen-tv" class="screen active">
-
-      <!-- ================= ESTRUCTURA PORTRAIT (ORIGINAL) ================= -->
-      <div class="view-content portrait-layout">
-        <div class="tv-container">
-          <div class="tv-video-box">
-            <div id="video-wrapper-portrait" style="width:100%; height:100%;">
-              <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
-            </div>
-          </div>
-
-          <div class="tv-controls-box">
-            <div class="grid-buttons" id="grid-buttons-portrait">
-              <!-- Carga de botones Portrait -->
-            </div>
+      
+      <!-- ================= ESTRUCTURA PORTRAIT ================= -->
+      <div class="portrait-layout">
+        <div class="portrait-video-box">
+          <div id="video-wrapper-portrait">
+            <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
           </div>
         </div>
+
+        <div class="portrait-controls-box">
+          <div class="grid-buttons" id="grid-buttons-portrait">
+            <!-- Carga de botones Portrait -->
+          </div>
+        </div>
+
         <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
       </div>
 
-      <!-- ================= ESTRUCTURA LANDSCAPE (INDEPENDIENTE) ================= -->
+      <!-- ================= ESTRUCTURA LANDSCAPE ================= -->
       <div class="landscape-layout">
-        <div class="landscape-video-container" id="video-wrapper-landscape">
-          <!-- El video se traslada aquí al rotar -->
+        <div class="landscape-video-container">
+          <div id="video-wrapper-landscape">
+            <!-- El video se reubica aquí de forma dinámica -->
+          </div>
         </div>
         <div class="landscape-sidebar">
           <div class="grid-buttons" id="grid-buttons-landscape">

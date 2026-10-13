@@ -40,7 +40,7 @@
     }
 
     .header {
-      display: none !important; /* Header eliminado según instrucciones */
+      display: none !important; /* Header eliminado en portrait según instrucciones */
     }
 
     /* ==========================================
@@ -64,12 +64,11 @@
     .view-content {
       flex: 1;
       padding: 15px;
-      padding-top: calc(15px + env(safe-area-inset-top, 20px)); /* Salvar el notch superior */
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 10px;
-      overflow: hidden; /* Evitar scroll general en portrait */
+      overflow-y: auto;
       min-height: 0;
     }
 
@@ -102,7 +101,6 @@
       min-height: 0;
       width: 100%;
       justify-content: space-between;
-      gap: 10px;
     }
 
     .tv-controls-box {
@@ -112,12 +110,12 @@
       min-height: 0;
       width: 100%;
       justify-content: space-between;
-      padding: 0;
+      padding: 0 15px;
     }
 
     .tv-video-box {
       width: 100% !important;
-      flex: 0 0 54% !important; /* El reproductor ocupa un poco más de la mitad (54%) en portrait */
+      flex: 0 0 54% !important; /* Reproductor ocupa algo más de la mitad en portrait */
       background-color: #000000 !important;
       border-radius: 0 !important;
       flex-shrink: 0 !important;
@@ -125,13 +123,14 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+      margin-bottom: 10px !important;
       position: relative !important;
     }
 
     #tv-video {
       width: 100% !important;
       height: 100% !important;
-      object-fit: cover !important; /* Cambiado a cover para rellenar todo el espacio sin bandas negras (recorta laterales) */
+      object-fit: cover !important; /* Rellena todo el espacio sin bandas negras */
       background-color: #000000 !important;
     }
 
@@ -165,23 +164,23 @@
       background-color: #292929 !important; 
     }
 
-    #screen-tv .view-content.portrait-layout {
+    #screen-tv .view-content {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 15px;
-      padding-top: calc(15px + env(safe-area-inset-top, 20px));
+      padding: 12px 0;
+      padding-top: calc(12px + env(safe-area-inset-top, 20px)); /* Salvar el notch en portrait */
       box-sizing: border-box;
       flex: 1;
       min-height: 0;
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     #screen-tv .btn-nav-back {
-      width: 100% !important;
-      margin: 0;
+      width: calc(100% - 30px) !important;
+      margin: 0 15px;
       flex-shrink: 0;
     }
 
@@ -191,7 +190,7 @@
     }
 
     /* ==========================================
-       4. ESTRUCTURA INDEPENDIENTE PARA LANDSCAPE
+       4. ESTRUCTURA INDEPENDIENTE PARA LANDSCAPE (ORIGINAL RESTAURADA)
        ========================================== */
     @media screen and (orientation: landscape) {
       /* Fondo negro absoluto */
@@ -264,7 +263,7 @@
     <div id="screen-tv" class="screen active">
       <div class="header"></div>
       
-      <!-- ================= ESTRUCTURA PORTRAIT (AJUSTADA) ================= -->
+      <!-- ================= ESTRUCTURA PORTRAIT ================= -->
       <div class="view-content portrait-layout">
         <div class="tv-container">
           <div class="tv-video-box">
@@ -282,7 +281,7 @@
         <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
       </div>
 
-      <!-- ================= ESTRUCTURA LANDSCAPE (INTACTA) ================= -->
+      <!-- ================= ESTRUCTURA LANDSCAPE (ORIGINAL) ================= -->
       <div class="landscape-layout">
         <div class="landscape-video-container" id="video-wrapper-landscape">
           <!-- El video se traslada aquí al rotar -->

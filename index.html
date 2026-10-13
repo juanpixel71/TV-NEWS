@@ -39,9 +39,6 @@
       background-color: #3C3C3B;
     }
 
-    .header {
-      display: none !important; /* Header eliminado en portrait según instrucciones */
-    }
 
     /* ==========================================
        2. NAVEGACIÓN Y PANTALLAS (PORTRAIT ORIGINAL)
@@ -113,9 +110,11 @@
       padding: 0 15px;
     }
 
-    .tv-video-box {
+.tv-video-box {
       width: 100% !important;
-      flex: 0 0 54% !important; /* Reproductor ocupa algo más de la mitad en portrait */
+      height: 50dvh !important; /* Ocupa exactamente la mitad superior de la pantalla */
+      max-height: 50dvh !important;
+      aspect-ratio: unset !important;
       background-color: #000000 !important;
       border-radius: 0 !important;
       flex-shrink: 0 !important;
@@ -123,14 +122,17 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      margin-bottom: 10px !important;
+      margin-bottom: 0 !important;
       position: relative !important;
+      /* Salva el notch de la cámara arriba ya que no hay header */
+      padding-top: env(safe-area-inset-top, 0px) !important; 
     }
 
-    #tv-video {
+#tv-video {
       width: 100% !important;
       height: 100% !important;
-      object-fit: cover !important; /* Rellena todo el espacio sin bandas negras */
+      /* Recorta los laterales para ajustarse a 1/2 pantalla en alto */
+      object-fit: cover !important; 
       background-color: #000000 !important;
     }
 
@@ -164,14 +166,13 @@
       background-color: #292929 !important; 
     }
 
-    #screen-tv .view-content {
+#screen-tv .view-content {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 12px 0;
-      padding-top: calc(12px + env(safe-area-inset-top, 20px)); /* Salvar el notch en portrait */
+      padding: 10px 0 15px 0;
       box-sizing: border-box;
       flex: 1;
       min-height: 0;
@@ -198,11 +199,7 @@
         background-color: #000000 !important;
       }
 
-      /* Ocultar elementos de Portrait */
-      .header, .portrait-layout {
-        display: none !important;
-      }
-
+   
       /* Layout horizontal en Landscape */
       .landscape-layout {
         display: flex !important;
@@ -261,7 +258,7 @@
   <div class="app-container">
 
     <div id="screen-tv" class="screen active">
-      <div class="header"></div>
+   
       
       <!-- ================= ESTRUCTURA PORTRAIT ================= -->
       <div class="view-content portrait-layout">

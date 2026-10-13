@@ -39,6 +39,9 @@
       background-color: #3C3C3B;
     }
 
+    /* ==========================================
+       2. NAVEGACIÓN Y PANTALLAS
+       ========================================== */
     .screen {
       display: none;
       flex-direction: column;
@@ -57,12 +60,13 @@
     .btn-nav-back {
       background-color: #292929;
       color: #FFFFFF;
-      padding: 14px;
+      padding: 16px;
       text-align: center;
       font-weight: bold;
       font-size: 1.05rem;
       cursor: pointer;
       border-radius: 10px;
+      margin-top: 0;
       text-decoration: none;
       text-transform: uppercase;
       flex-shrink: 0;
@@ -73,45 +77,58 @@
     }
 
     /* ==========================================
-       2. ESTRUCTURA AISLADA: PORTRAIT
+       3. ESTRUCTURA AISLADA: PORTRAIT (SIN HEADER Y REPRODUCTOR A 1/2 PANTALLA)
        ========================================== */
     .portrait-layout {
       display: flex !important;
       flex-direction: column !important;
+      flex: 1 !important;
+      min-height: 0 !important;
       width: 100% !important;
       height: 100dvh !important;
-      background-color: #000000 !important;
-      padding-top: env(safe-area-inset-top, 0px) !important;
-      padding-bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
-      padding-left: 12px !important;
-      padding-right: 12px !important;
       justify-content: space-between !important;
-      overflow: hidden !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: env(safe-area-inset-top, 12px) 15px calc(12px + env(safe-area-inset-bottom, 0px)) 15px !important;
+      box-sizing: border-box !important;
+      overflow-y: auto !important;
+      background-color: #000000 !important;
     }
 
-    /* Reproductor ocupa la mitad superior de la pantalla (50dvh) */
-    .portrait-video-box {
+    .tv-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .tv-controls-box {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      justify-content: space-between;
+      padding: 0 15px;
+    }
+
+    .tv-video-box {
       width: 100% !important;
       height: 50dvh !important;
       max-height: 50dvh !important;
       background-color: #000000 !important;
+      border-radius: 0 !important;
       flex-shrink: 0 !important;
       overflow: hidden !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+      margin-bottom: 10px !important;
       position: relative !important;
     }
 
-    #video-wrapper-portrait {
-      width: 100% !important;
-      height: 100% !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    /* Mantiene los recortes laterales ajustando la imagen al contenedor */
     #tv-video {
       width: 100% !important;
       height: 100% !important;
@@ -119,38 +136,28 @@
       background-color: #000000 !important;
     }
 
-    .portrait-controls-box {
-      display: flex !important;
-      flex-direction: column !important;
-      flex: 1 !important;
-      min-height: 0 !important;
-      width: 100% !important;
-      justify-content: center !important;
-      margin: 8px 0 !important;
+    #screen-tv .grid-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
     }
 
-    #grid-buttons-portrait {
-      display: grid !important;
-      grid-template-columns: repeat(2, 1fr) !important;
-      grid-template-rows: repeat(4, 1fr) !important;
-      gap: 6px !important;
-      flex: 1 !important;
-      min-height: 0 !important;
-      width: 100% !important;
-    }
-
-    .portrait-layout .boton-canal {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      background-color: #9D9D9C !important;
-      color: #FFFFFF !important;
-      padding: 4px 2px !important;
-      border-radius: 8px !important;
-      font-size: 0.95rem !important;
-      font-weight: bold !important;
-      text-align: center !important;
-      cursor: pointer !important;
+    .boton-canal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #9D9D9C;
+      color: #FFFFFF;
+      padding: 6px 4px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
       height: 100% !important;
       width: 100% !important;
     }
@@ -160,29 +167,31 @@
     }
 
     .portrait-layout .btn-nav-back {
-      width: 100% !important;
-      flex-shrink: 0 !important;
+      width: calc(100% - 30px) !important;
+      margin: 0 15px;
+      flex-shrink: 0;
     }
 
-    /* Ocultar Landscape en modo Portrait */
+    /* Ocultar contenedor exclusivo de Landscape en modo Portrait */
     .landscape-layout {
       display: none !important;
     }
 
     /* ==========================================
-       3. ESTRUCTURA AISLADA: LANDSCAPE
+       4. ESTRUCTURA AISLADA PARA LANDSCAPE
        ========================================== */
     @media screen and (orientation: landscape) {
+      /* Fondo negro absoluto */
       html, body, .app-container, .screen {
         background-color: #000000 !important;
       }
 
-      /* Ocultar por completo Portrait en Landscape */
+      /* Ocultar elementos de Portrait */
       .portrait-layout {
         display: none !important;
       }
 
-      /* Layout horizontal personalizado */
+      /* Layout horizontal en Landscape */
       .landscape-layout {
         display: flex !important;
         flex-direction: row !important;
@@ -192,6 +201,7 @@
         background-color: #000000 !important;
       }
 
+      /* Contenedor del reproductor */
       .landscape-video-container {
         flex: 1 !important;
         height: 100% !important;
@@ -200,24 +210,15 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        overflow: hidden !important;
       }
 
-      #video-wrapper-landscape {
-        width: 100% !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-
-      /* En landscape el video se ajusta dinámicamente sin desbordar */
       .landscape-layout #tv-video {
         width: 100% !important;
         height: 100% !important;
         object-fit: contain !important;
       }
 
+      /* Columna exclusiva de canales con scroll */
       .landscape-sidebar {
         width: 130px !important;
         max-width: 25vw !important;
@@ -245,13 +246,6 @@
         font-size: 0.85rem !important;
         border-radius: 8px !important;
         flex-shrink: 0 !important;
-        background-color: #9D9D9C !important;
-        color: #FFFFFF !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-weight: bold !important;
-        cursor: pointer !important;
       }
     }
   </style>
@@ -262,29 +256,28 @@
 
     <div id="screen-tv" class="screen active">
       
-      <!-- ================= ESTRUCTURA PORTRAIT ================= -->
-      <div class="portrait-layout">
-        <div class="portrait-video-box">
-          <div id="video-wrapper-portrait">
-            <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+      <!-- ================= ESTRUCTURA PORTRAIT (ORIGINAL SIN HEADER) ================= -->
+      <div class="view-content portrait-layout">
+        <div class="tv-container">
+          <div class="tv-video-box">
+            <div id="video-wrapper-portrait" style="width:100%; height:100%;">
+              <video id="tv-video" controls autoplay playsinline webkit-playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+            </div>
+          </div>
+
+          <div class="tv-controls-box">
+            <div class="grid-buttons" id="grid-buttons-portrait">
+              <!-- Carga de botones Portrait -->
+            </div>
           </div>
         </div>
-
-        <div class="portrait-controls-box">
-          <div class="grid-buttons" id="grid-buttons-portrait">
-            <!-- Carga de botones Portrait -->
-          </div>
-        </div>
-
-        <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACIÓN</button>
+        <button class="btn-nav-back" onclick="salirDeAplicacion()">&lt; SALIR DE LA APLICACI&Oacute;N</button>
       </div>
 
-      <!-- ================= ESTRUCTURA LANDSCAPE ================= -->
+      <!-- ================= ESTRUCTURA LANDSCAPE (INDEPENDIENTE) ================= -->
       <div class="landscape-layout">
-        <div class="landscape-video-container">
-          <div id="video-wrapper-landscape">
-            <!-- El video se reubica aquí de forma dinámica -->
-          </div>
+        <div class="landscape-video-container" id="video-wrapper-landscape">
+          <!-- El video se traslada aquí al rotar -->
         </div>
         <div class="landscape-sidebar">
           <div class="grid-buttons" id="grid-buttons-landscape">
@@ -383,3 +376,102 @@
           b.classList.add('active-item');
         } else {
           b.classList.remove('active-item');
+        }
+      });
+    }
+
+    /* ==========================================
+       REPRODUCTOR TV (HLS)
+       ========================================== */
+    function loadChannel(url) {
+      marcarBotonActivo(url);
+
+      if (Hls.isSupported()) {
+        if (hlsInstance) {
+          hlsInstance.destroy();
+        }
+        hlsInstance = new Hls();
+        hlsInstance.loadSource(url);
+        hlsInstance.attachMedia(videoElement);
+        
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+          videoElement.play().catch(e => console.log("Error al reproducir HLS:", e));
+        });
+
+        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            switch (data.details) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hlsInstance.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hlsInstance.recoverMediaError();
+                break;
+              default:
+                hlsInstance.destroy();
+                break;
+            }
+          }
+        });
+      } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+        videoElement.src = url;
+        videoElement.addEventListener('loadedmetadata', () => {
+          videoElement.play().catch(e => console.log("Error al reproducir nativo:", e));
+        });
+      }
+    }
+
+    /* ==========================================
+       CARGA DE CANALES INTERNOS (LOCAL)
+       ========================================== */
+    const canalesLocales = [
+      { "nombre": "FRANCE 24", "url": "https://live.france24.com/hls/live/2037179-b/F24_FR_HI_HLS/master_5000.m3u8" },
+      { "nombre": "BFM", "url": "https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TV/index.m3u8" },
+      { "nombre": "BBC NEWS", "url": "https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8" },
+      { "nombre": "CNN", "url": "https://ds2c506obo7m8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-7zjq3tdqasbg8/index.m3u8" },
+      { "nombre": "EURONEWS", "url": "https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA0YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8" },
+      { "nombre": "24 HORAS", "url": "https://ztnr.rtve.es/ztnr/1694255.m3u8" },
+      { "nombre": "TVE LA 1", "url": "https://rtvelivestream.rtve.es/rtvesec/la1/la1_main_dvr.m3u8" },
+      { "nombre": "3CAT INFO", "url": "https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8" }
+    ];
+
+    function cargarCanalesLocales() {
+      const gridPortrait = document.getElementById('grid-buttons-portrait');
+      const gridLandscape = document.getElementById('grid-buttons-landscape');
+      
+      gridPortrait.innerHTML = '';
+      gridLandscape.innerHTML = '';
+
+      canalesLocales.forEach((canal) => {
+        const nombreCanal = canal.nombre;
+        const urlCanal = canal.url;
+
+        // Botón Portrait
+        const botonPortrait = document.createElement('button');
+        botonPortrait.className = 'boton-canal';
+        botonPortrait.textContent = nombreCanal;
+        botonPortrait.dataset.url = urlCanal;
+        botonPortrait.onclick = () => loadChannel(urlCanal);
+
+        // Botón Landscape
+        const botonLandscape = document.createElement('button');
+        botonLandscape.className = 'boton-canal';
+        botonLandscape.textContent = nombreCanal;
+        botonLandscape.dataset.url = urlCanal;
+        botonLandscape.onclick = () => loadChannel(urlCanal);
+
+        gridPortrait.appendChild(botonPortrait);
+        gridLandscape.appendChild(botonLandscape);
+      });
+    }
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      adaptarReproductorPorOrientacion();
+      cargarCanalesLocales();
+      habilitarBotonAtrasAndroid();
+    });
+  </script>
+
+</body>
+</html>

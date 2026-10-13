@@ -191,7 +191,7 @@
     }
 
     /* ==========================================
-       4. ESTRUCTURA INDEPENDIENTE PARA LANDSCAPE (ORIGINAL RESTAURADA)
+       4. ESTRUCTURA INDEPENDIENTE PARA LANDSCAPE
        ========================================== */
     @media screen and (orientation: landscape) {
       /* Fondo negro absoluto */
@@ -199,8 +199,12 @@
         background-color: #000000 !important;
       }
 
-   
-      /* Layout horizontal en Landscape */
+      /* Ocultar elementos de Portrait */
+      .header, .portrait-layout {
+        display: none !important;
+      }
+
+      /* Layout horizontal en Landscape con protección de notch y bordes */
       .landscape-layout {
         display: flex !important;
         flex-direction: row !important;
@@ -208,17 +212,29 @@
         height: 100dvh !important;
         overflow: hidden !important;
         background-color: #000000 !important;
+        /* Protege contra el notch y muescas en los laterales / bordes en horizontal */
+        padding-top: env(safe-area-inset-top, 0px) !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+        padding-left: env(safe-area-inset-left, 0px) !important;
+        padding-right: env(safe-area-inset-right, 0px) !important;
       }
 
-      /* Contenedor del reproductor */
+      /* Contenedor del reproductor en horizontal */
       .landscape-video-container {
         flex: 1 !important;
         height: 100% !important;
         background-color: #000000 !important;
-        margin-left: max(25px, env(safe-area-inset-left, 25px)) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        overflow: hidden !important;
+      }
+
+      /* Asegurar que el video en landscape no se coma los bordes ni haga recortes indebidos */
+      .landscape-layout video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important; /* Evita que se recorte arriba/abajo */
       }
 
       /* Columna exclusiva de canales con scroll */
@@ -228,7 +244,6 @@
         height: 100% !important;
         background-color: #000000 !important;
         padding: 8px !important;
-        padding-right: calc(8px + env(safe-area-inset-right, 0px)) !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 6px !important;
@@ -251,6 +266,7 @@
         flex-shrink: 0 !important;
       }
     }
+    
   </style>
 </head>
 <body>

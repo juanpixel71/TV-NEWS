@@ -28,8 +28,6 @@
       background-color: #3C3C3B;
       color: #FFFFFF;
       overflow: hidden;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     .app-container {
@@ -59,7 +57,7 @@
     .btn-nav-back {
       background-color: #292929;
       color: #FFFFFF;
-      padding: 16px;
+      padding: 14px;
       text-align: center;
       font-weight: bold;
       font-size: 1.05rem;
@@ -81,13 +79,17 @@
       display: flex !important;
       flex-direction: column !important;
       width: 100% !important;
-      height: 100% !important;
+      height: 100dvh !important;
       background-color: #000000 !important;
-      padding: 12px 15px calc(12px + env(safe-area-inset-bottom, 0px)) 15px !important;
+      padding-top: env(safe-area-inset-top, 0px) !important;
+      padding-bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+      padding-left: 12px !important;
+      padding-right: 12px !important;
       justify-content: space-between !important;
       overflow: hidden !important;
     }
 
+    /* Reproductor ocupa la mitad superior de la pantalla (50dvh) */
     .portrait-video-box {
       width: 100% !important;
       height: 50dvh !important;
@@ -109,6 +111,7 @@
       justify-content: center !important;
     }
 
+    /* Mantiene los recortes laterales ajustando la imagen al contenedor */
     #tv-video {
       width: 100% !important;
       height: 100% !important;
@@ -122,15 +125,15 @@
       flex: 1 !important;
       min-height: 0 !important;
       width: 100% !important;
-      justify-content: space-between !important;
-      margin: 10px 0 !important;
+      justify-content: center !important;
+      margin: 8px 0 !important;
     }
 
     #grid-buttons-portrait {
       display: grid !important;
       grid-template-columns: repeat(2, 1fr) !important;
       grid-template-rows: repeat(4, 1fr) !important;
-      gap: 8px !important;
+      gap: 6px !important;
       flex: 1 !important;
       min-height: 0 !important;
       width: 100% !important;
@@ -144,7 +147,7 @@
       color: #FFFFFF !important;
       padding: 4px 2px !important;
       border-radius: 8px !important;
-      font-size: 1rem !important;
+      font-size: 0.95rem !important;
       font-weight: bold !important;
       text-align: center !important;
       cursor: pointer !important;
@@ -158,7 +161,6 @@
 
     .portrait-layout .btn-nav-back {
       width: 100% !important;
-      margin-top: 8px !important;
       flex-shrink: 0 !important;
     }
 
@@ -209,7 +211,7 @@
         justify-content: center !important;
       }
 
-      /* En landscape el video usa contain para ocupar casi toda la pantalla sin desbordar */
+      /* En landscape el video se ajusta dinámicamente sin desbordar */
       .landscape-layout #tv-video {
         width: 100% !important;
         height: 100% !important;
@@ -381,102 +383,3 @@
           b.classList.add('active-item');
         } else {
           b.classList.remove('active-item');
-        }
-      });
-    }
-
-    /* ==========================================
-       REPRODUCTOR TV (HLS)
-       ========================================== */
-    function loadChannel(url) {
-      marcarBotonActivo(url);
-
-      if (Hls.isSupported()) {
-        if (hlsInstance) {
-          hlsInstance.destroy();
-        }
-        hlsInstance = new Hls();
-        hlsInstance.loadSource(url);
-        hlsInstance.attachMedia(videoElement);
-        
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          videoElement.play().catch(e => console.log("Error al reproducir HLS:", e));
-        });
-
-        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            switch (data.details) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hlsInstance.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hlsInstance.recoverMediaError();
-                break;
-              default:
-                hlsInstance.destroy();
-                break;
-            }
-          }
-        });
-      } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-        videoElement.src = url;
-        videoElement.addEventListener('loadedmetadata', () => {
-          videoElement.play().catch(e => console.log("Error al reproducir nativo:", e));
-        });
-      }
-    }
-
-    /* ==========================================
-       CARGA DE CANALES INTERNOS (LOCAL)
-       ========================================== */
-    const canalesLocales = [
-      { "nombre": "FRANCE 24", "url": "https://live.france24.com/hls/live/2037179-b/F24_FR_HI_HLS/master_5000.m3u8" },
-      { "nombre": "BFM", "url": "https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TV/index.m3u8" },
-      { "nombre": "BBC NEWS", "url": "https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8" },
-      { "nombre": "CNN", "url": "https://ds2c506obo7m8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-7zjq3tdqasbg8/index.m3u8" },
-      { "nombre": "EURONEWS", "url": "https://euronews-live-spa-es.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6571/bitok/eyJzdGlkIjoiMDA0YjY0NTMtYjY2MC00ZTZkLTlkNzEtMTk3YTM3ZDZhZWIxIiwibWt0IjoiZXMiLCJjaCI6NjU3MSwicHRmIjoxfQ==/26034/euronews-es.m3u8" },
-      { "nombre": "24 HORAS", "url": "https://ztnr.rtve.es/ztnr/1694255.m3u8" },
-      { "nombre": "TVE LA 1", "url": "https://rtvelivestream.rtve.es/rtvesec/la1/la1_main_dvr.m3u8" },
-      { "nombre": "3CAT INFO", "url": "https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8" }
-    ];
-
-    function cargarCanalesLocales() {
-      const gridPortrait = document.getElementById('grid-buttons-portrait');
-      const gridLandscape = document.getElementById('grid-buttons-landscape');
-      
-      gridPortrait.innerHTML = '';
-      gridLandscape.innerHTML = '';
-
-      canalesLocales.forEach((canal) => {
-        const nombreCanal = canal.nombre;
-        const urlCanal = canal.url;
-
-        // Botón Portrait
-        const botonPortrait = document.createElement('button');
-        botonPortrait.className = 'boton-canal';
-        botonPortrait.textContent = nombreCanal;
-        botonPortrait.dataset.url = urlCanal;
-        botonPortrait.onclick = () => loadChannel(urlCanal);
-
-        // Botón Landscape
-        const botonLandscape = document.createElement('button');
-        botonLandscape.className = 'boton-canal';
-        botonLandscape.textContent = nombreCanal;
-        botonLandscape.dataset.url = urlCanal;
-        botonLandscape.onclick = () => loadChannel(urlCanal);
-
-        gridPortrait.appendChild(botonPortrait);
-        gridLandscape.appendChild(botonLandscape);
-      });
-    }
-
-    // Inicialización
-    document.addEventListener('DOMContentLoaded', () => {
-      adaptarReproductorPorOrientacion();
-      cargarCanalesLocales();
-      habilitarBotonAtrasAndroid();
-    });
-  </script>
-
-</body>
-</html>
